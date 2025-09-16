@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Spreadsheet-Like LaTeX Editor with Headers</title>
+<title>Advanced LaTeX Spreadsheet</title>
 <script src="texme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
 <style>
@@ -21,7 +21,7 @@
 </head>
 <body>
 
-<h2>Spreadsheet-Like LaTeX Editor with Headers</h2>
+<h2>Advanced LaTeX Spreadsheet</h2>
 <div>
   <button id="addRow">Add Row</button>
   <button id="addCol">Add Column</button>
@@ -36,167 +36,159 @@
 window.onload = function () {
   const grid = document.getElementById('grid');
   const texmeLine = '<!DOCTYPE html><script src="texme.js"></script><textarea>';
-  let timeout = null;
-  let numRows = 0;
-  let numCols = 2; // initial input columns
+  let numRows = 0, numCols = 0;
+  const columnTypes = []; // 'latex', 'text', 'formula'
+  const cellMap = {}; // cellId -> {type, value, formula?, element, renderElement?}
+  const columnRules = {}; // colIndex -> [{condition, style}]
 
   // ----- Utilities -----
   function colName(n) {
     let name = '';
-    while (n >= 0) {
-      name = String.fromCharCode(65 + (n % 26)) + name;
-      n = Math.floor(n/26) -1;
-    }
+    while (n >= 0) { name = String.fromCharCode(65 + (n % 26)) + name; n = Math.floor(n/26)-1; }
     return name;
   }
+  function rowName(n){ return n+1; }
 
-  function normalizeInput(input) {
+  function cellId(col,row){ return colName(col)+rowName(row); }
+
+  function normalizeInput(input){
     let code = input.value.replace(/^\s+/, '');
-    if (!code.startsWith(texmeLine) && code.length > 0) {
-      code = texmeLine + '\n\n' + code;
-    }
-    input.value = code;
+    if(!code.startsWith(texmeLine) && code.length>0) code=texmeLine+'\n\n'+code;
+    input.value=code;
   }
 
-  function renderPreview(input, preview) {
-    let code = input.value.replace(texmeLine, '').trim();
+  function renderPreview(input, preview){
+    let code=input.value.replace(texmeLine,'').trim();
     preview.innerHTML = texme.render(code);
     window.MathJax.Hub.Queue(['resetEquationNumbers', MathJax.InputJax.TeX],
                              ['Typeset', window.MathJax.Hub, preview]);
-    autoExpand(input);
+    input.style.height='auto';
+    input.style.height=input.scrollHeight+'px';
   }
 
-  function scheduleInputHandler(input, preview) {
-    if (timeout !== null) clearTimeout(timeout);
-    timeout = setTimeout(() => { normalizeInput(input); renderPreview(input, preview); }, 100);
+  function evaluateFormula(formula, currentId){
+    // formula like =SUM(A1:A3)+B2
+    if(!formula.startsWith('=')) return formula;
+    let expr = formula.slice(1);
+    expr = expr.replace(/([A-Z]+[0-9]+)/g,(match)=>{
+      const val = cellMap[match]?.value||0;
+      return isNaN(val)?0:val;
+    });
+    try{ return eval(expr); } catch(e){ return '#ERR'; }
   }
 
-  function autoExpand(textarea) {
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
-  }
-
-  function createCell(type='input', isHeader=false) {
-    const cell = type==='input'? document.createElement('textarea') : document.createElement('div');
-    cell.className = 'cell';
-    if (type==='input') { cell.classList.add('input-cell'); cell.placeholder='Type LaTeX'; cell.addEventListener('input', ()=>autoExpand(cell)); }
-    if (type==='render') cell.classList.add('render-cell');
-    if (isHeader) { cell.classList.add('header'); cell.textContent=''; }
-    return cell;
-  }
-
-  function updateGridTemplate() { grid.style.gridTemplateColumns = `50px repeat(${numCols*2}, 1fr)`; }
-
-  // ----- Row and Column Management -----
-  function addRow() {
-    const rowIndex = numRows+1;
-    const rowHeader = createCell('render', true);
-    rowHeader.classList.add('row'); rowHeader.textContent = rowIndex;
-    grid.appendChild(rowHeader);
-
-    for (let c=0;c<numCols;c++){
-      const input = createCell('input');
-      const render = createCell('render');
-      grid.appendChild(input); grid.appendChild(render);
-      hookCell(input, render);
+  function applyConditionalFormatting(){
+    for(let col in columnRules){
+      columnRules[col].forEach(rule=>{
+        for(let r=0;r<numRows;r++){
+          const id=cellId(col,r);
+          const cell=cellMap[id];
+          if(!cell) return;
+          let cond=rule.condition.replace(/([A-Z]+[0-9]+)/g,(m)=>cellMap[m]?.value||0);
+          try{ if(eval(cond)) Object.assign(cell.element.style,rule.style); else Object.assign(cell.element.style,rule.defaultStyle||{});}catch(e){}
+        }
+      });
     }
+  }
+
+  function updateCell(cell){
+    if(cell.type==='formula'){
+      cell.value=evaluateFormula(cell.formula, cell.id);
+      cell.element.value=cell.formula;
+    } else if(cell.type==='latex'){
+      cell.value=cell.element.value.replace(texmeLine,'').trim();
+      renderPreview(cell.element, cell.renderElement);
+    } else {
+      cell.value=cell.element.value;
+    }
+  }
+
+  function recalcAll(){
+    for(let key in cellMap){ updateCell(cellMap[key]); }
+    applyConditionalFormatting();
+  }
+
+  // ----- Cell creation -----
+  function createCell(type, col, row){
+    const id=cellId(col,row);
+    if(type==='latex'){
+      const input=document.createElement('textarea');
+      input.className='cell input-cell'; input.placeholder='LaTeX';
+      const render=document.createElement('div'); render.className='cell render-cell';
+      input.addEventListener('input',()=>{updateCell(cellMap[id]); recalcAll();});
+      grid.appendChild(input); grid.appendChild(render);
+      cellMap[id]={type:'latex',element:input,renderElement:render,value:''};
+    } else {
+      const input=document.createElement('textarea'); input.className='cell input-cell';
+      input.addEventListener('input',()=>{updateCell(cellMap[id]); recalcAll();});
+      grid.appendChild(input);
+      cellMap[id]={type,element:input,value:type==='formula'? '' : input.value,formula:type==='formula'?'' :undefined};
+    }
+  }
+
+  function addColumn(){
+    const type = prompt("Column type? latex/text/formula","latex");
+    if(!['latex','text','formula'].includes(type)) return;
+    const col=numCols;
+    columnTypes.push(type);
+    // Add header
+    const header=document.createElement('div'); header.className='cell header col'; header.textContent=colName(col);
+    grid.appendChild(header);
+    for(let r=0;r<numRows;r++){ createCell(type,col,r); }
+    numCols++;
+    grid.style.gridTemplateColumns=`repeat(${numCols*2},1fr)`;
+  }
+
+  function addRow(){
+    const row=numRows;
+    // Row header
+    const header=document.createElement('div'); header.className='cell header row'; header.textContent=rowName(row);
+    grid.appendChild(header);
+    for(let c=0;c<numCols;c++){ createCell(columnTypes[c],c,row); }
     numRows++;
   }
 
-  function addColumn() {
-    const header = createCell('render', true);
-    header.classList.add('col'); header.textContent = colName(numCols);
-    // Insert column headers before first row
-    grid.insertBefore(header, grid.children[numCols*2 + 1]);
-    // Add input+render to each existing row
-    for (let r=0;r<numRows;r++){
-      const input = createCell('input');
-      const render = createCell('render');
-      const rowStart = r*(numCols*2 +1)+1;
-      grid.insertBefore(input, grid.children[rowStart + numCols*2]);
-      grid.insertBefore(render, input.nextSibling);
-      hookCell(input, render);
-    }
-    numCols++;
-    updateGridTemplate();
-  }
-
-  function hookCell(input, render){
-    input.onkeyup = () => scheduleInputHandler(input, render);
-    input.onpaste = () => scheduleInputHandler(input, render);
-    input.oncut = () => scheduleInputHandler(input, render);
-    input.addEventListener('keydown', navigateCells);
-    input.addEventListener('mousedown', startSelection);
-    input.addEventListener('mouseover', duringSelection);
-    render.addEventListener('mousedown', startSelection);
-    render.addEventListener('mouseover', duringSelection);
-  }
-
-  // ----- Navigation -----
-  function navigateCells(e){
-    const inputs = Array.from(grid.querySelectorAll('.input-cell'));
-    const index = inputs.indexOf(e.target);
-    let newIndex = null;
-    switch(e.key){
-      case 'ArrowRight': newIndex=index+1; break;
-      case 'ArrowLeft': newIndex=index-1; break;
-      case 'ArrowDown': newIndex=index+numCols; break;
-      case 'ArrowUp': newIndex=index-numCols; break;
-      case 'Tab': e.preventDefault(); newIndex=e.shiftKey?index-1:index+1; break;
-    }
-    if (newIndex!==null && newIndex>=0 && newIndex<inputs.length) inputs[newIndex].focus();
-  }
-
-  // ----- Selection -----
+  // ----- Drag selection -----
   let isDragging=false;
-  function startSelection(e){ isDragging=true; e.target.classList.add('selected'); e.preventDefault(); }
-  function duringSelection(e){ if(isDragging) e.target.classList.add('selected'); }
+  function startSelection(e){ isDragging=true; e.target.classList.add('selected'); e.preventDefault();}
+  function duringSelection(e){ if(isDragging) e.target.classList.add('selected');}
   function endSelection(){ isDragging=false; }
   document.addEventListener('mouseup', endSelection);
 
+  // ----- Copy selection -----
   function copySelection(){
-    const selected = Array.from(grid.querySelectorAll('.selected'));
+    const selected=Array.from(grid.querySelectorAll('.selected'));
     if(!selected.length) return;
-    const text = selected.map(c=>c.tagName==='TEXTAREA'?c.value:c.textContent).join('\t');
+    const text=selected.map(c=>c.tagName==='TEXTAREA'?c.value:c.textContent).join('\t');
     const temp=document.createElement('textarea'); document.body.appendChild(temp);
     temp.value=text; temp.select(); document.execCommand('copy'); document.body.removeChild(temp);
     alert('Copied '+selected.length+' cells!');
   }
 
+  // ----- Export CSV -----
   function exportCSV(){
-    let cols = prompt(`Enter input column indices (0-based) to export:`).split(',').map(c=>parseInt(c.trim())).filter(c=>!isNaN(c));
-    if(!cols.length) return alert('No valid columns.');
-    const includeRendered = confirm('Include rendered LaTeX?');
     let csv='';
     for(let r=0;r<numRows;r++){
       let row=[];
-      cols.forEach(c=>{
-        const inputCell = grid.children[r*(numCols*2+1)+1 + c*2];
-        row.push('"'+(inputCell.value||'')+'"');
-        if(includeRendered){
-          const renderCell = grid.children[r*(numCols*2+1)+1 + c*2 +1];
-          row.push('"'+(renderCell.textContent||'')+'"');
-        }
-      });
+      for(let c=0;c<numCols;c++){
+        const id=cellId(c,r);
+        const cell=cellMap[id];
+        row.push('"'+(cell.value||'')+'"');
+      }
       csv+=row.join(',')+'\n';
     }
     const blob=new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    const link=document.createElement('a'); link.href=URL.createObjectURL(blob);
-    link.download='latex_spreadsheet.csv'; link.click();
+    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='spreadsheet.csv'; link.click();
   }
 
-  document.getElementById('addRow').onclick = addRow;
-  document.getElementById('addCol').onclick = addColumn;
-  document.getElementById('copySelection').onclick = copySelection;
-  document.getElementById('exportCSV').onclick = exportCSV;
+  // ----- Buttons -----
+  document.getElementById('addRow').onclick=addRow;
+  document.getElementById('addCol').onclick=addColumn;
+  document.getElementById('copySelection').onclick=copySelection;
+  document.getElementById('exportCSV').onclick=exportCSV;
 
-  updateGridTemplate();
-  // Add initial headers
-  for(let i=0;i<numCols;i++){
-    const header=createCell('render',true); header.classList.add('col'); header.textContent=colName(i);
-    grid.appendChild(header);
-  }
-  addRow();
+  // Initialize
+  addColumn(); addColumn(); addRow();
 }
 </script>
 
