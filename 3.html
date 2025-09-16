@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Advanced Spreadsheet with LaTeX & Conditional Formatting</title>
+<script src="texme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
+<style>
+body { font-family: sans-serif; padding: 20px; }
+.container { overflow: auto; max-height: 600px; border: 1px solid #ccc; }
+.grid { display: grid; border-collapse: collapse; }
+.cell { border: 1px solid #ccc; padding: 4px; min-width: 80px; min-height: 40px; box-sizing: border-box; position: relative; }
+.input-cell { width: 100%; height: 100%; border: none; background: #f0f8ff; resize: none; }
+.render-cell { background: #fff; width: 100%; height: 100%; overflow: hidden; }
+.header { background: #ddd; font-weight: bold; text-align: center; position: sticky; z-index: 2; }
+.header.col { top: 0; }
+.header.row { left: 0; }
+.selected { outline: 2px solid #007bff; }
+button { padding: 6px 10px; margin-right: 5px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h2>Spreadsheet with LaTeX + Conditional Formatting</h2>
+<div>
+  <button id="addRow">Add Row</button>
+  <button id="addCol">Add Column</button>
+  <button id="copySelection">Copy Selected</button>
+  <button id="exportCSV">Export CSV</button>
+</div>
+<div class="container">
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+window.onload = function() {
+  const grid = document.getElementById('grid');
+  const columnTypes = []; // { type:'latex'/'text'/'formula', isPair: true/false }
+  const cellMap = {}; // cellId -> {type,value,element,render?}
+  const columnRules = {}; // columnIndex -> [{condition, style, defaultStyle}]
+  let numRows = 0;
+  let numCols = 0; // logical columns
+
+  function colName(n){ let s=''; while(n>=0){ s=String.fromCharCode(65+n%26)+s; n=Math.floor(n/26)-1;} return s; }
+  function rowName(n){ return n+1; }
+  function cellId(c,r,sub=''){ return colName(c)+rowName(r)+sub; }
+
+  function evalFormula(formula){
+    if(!formula.startsWith('=')) return formula;
+    let expr = formula.slice(1).replace(/([A-Z]+[0-9]+)/g,m=>{ 
+      const val = cellMap[m]?.value || 0; 
+      return isNaN(val)?0:val; 
+    });
+    try{return eval(expr);}catch(e){return '#ERR';}
+  }
+
+  function recalcAll(){
+    for(const key in cellMap){
+      const c = cellMap[key];
+      if(c.type==='formula') c.value = evalFormula(c.element.value);
+      else if(c.type==='latex') c.value = c.element.value;
+      else c.value = c.element.value;
+    }
+    renderLatexCells();
+    applyConditionalFormatting();
+  }
+
+  function renderLatexCells(){
+    for(const key in cellMap){
+      const c = cellMap[key];
+      if(c.type==='latex' && c.render) texme.render(c.value, c.render);
+    }
+  }
+
+  function createCell(type,col,row){
+    const idBase = cellId(col,row);
+    if(type==='latex'){
+      const input=document.createElement('textarea'); input.className='input-cell';
+      const render=document.createElement('div'); render.className='render-cell';
+      input.addEventListener('input',()=>{
+        cellMap[idBase+'_in'].value=input.value;
+        texme.render(input.value, render);
+        recalcAll();
+      });
+      grid.appendChild(input); grid.appendChild(render);
+      cellMap[idBase+'_in']={type:'latex',element:input,value:'',render:render};
+    } else {
+      const input=document.createElement('textarea'); input.className='input-cell';
+      input.addEventListener('input',()=>{
+        if(type==='formula') cellMap[idBase].value = evalFormula(input.value);
+        else cellMap[idBase].value = input.value;
+        recalcAll();
+      });
+      grid.appendChild(input);
+      cellMap[idBase]={type,type:type,value:'',element:input};
+    }
+  }
+
+  function addColumn(){
+    const type = prompt("Column type? latex/text/formula","latex");
+    if(!['latex','text','formula'].includes(type)) return;
+    const col=numCols;
+    columnTypes.push({type,isPair:type==='latex'});
+    const header=document.createElement('div'); header.className='cell header col'; header.textContent=colName(col);
+    grid.appendChild(header);
+    if(type==='latex'){
+      const header2=document.createElement('div'); header2.className='cell header col'; header2.textContent=''; 
+      grid.appendChild(header2);
+    }
+    for(let r=0;r<numRows;r++) createCell(type,col,r);
+    numCols++;
+    const gridCols = columnTypes.reduce((acc,c)=> acc + (c.isPair?2:1),0);
+    grid.style.gridTemplateColumns=`repeat(${gridCols},80px)`;
+  }
+
+  function addRow(){
+    const row=numRows;
+    const header=document.createElement('div'); header.className='cell header row'; header.textContent=rowName(row);
+    grid.appendChild(header);
+    for(let c=0;c<numCols;c++) createCell(columnTypes[c].type,c,row);
+    numRows++;
+  }
+
+  function applyConditionalFormatting(){
+    for(const colIndex in columnRules){
+      const rules = columnRules[colIndex];
+      for(let r=0;r<numRows;r++){
+        const t = columnTypes[colIndex];
+        const idBase = cellId(colIndex,r);
+        const cellsToStyle = t.isPair ? [cellMap[idBase+'_in'].element] : [cellMap[idBase].element];
+        rules.forEach(rule=>{
+          let cond = rule.condition.replace(/([A-Z]+[0-9]+)/g, m=>{
+            const val = cellMap[m]?.value || 0;
+            return isNaN(val)?0:val;
+          });
+          let result=false;
+          try{ result = eval(cond); }catch(e){}
+          cellsToStyle.forEach(el=>{
+            if(result) Object.assign(el.style, rule.style);
+            else Object.assign(el.style, rule.defaultStyle || {backgroundColor:'#f0f8ff'});
+          });
+        });
+      }
+    }
+  }
+
+  // Drag selection
+  let isDragging=false;
+  function startSelection(e){ isDragging=true; e.target.classList.add('selected'); e.preventDefault(); }
+  function duringSelection(e){ if(isDragging) e.target.classList.add('selected'); }
+  function endSelection(){ isDragging=false; }
+  document.addEventListener('mouseup', endSelection);
+
+  function copySelection(){
+    const selected=Array.from(grid.querySelectorAll('.selected'));
+    if(!selected.length) return;
+    const text=selected.map(c=>c.value||c.textContent).join('\t');
+    const temp=document.createElement('textarea'); document.body.appendChild(temp);
+    temp.value=text; temp.select(); document.execCommand('copy'); document.body.removeChild(temp);
+    alert('Copied '+selected.length+' cells!');
+  }
+
+  function exportCSV(){
+    let csv='';
+    for(let r=0;r<numRows;r++){
+      let row=[];
+      for(let c=0;c<numCols;c++){
+        const t = columnTypes[c];
+        if(t.isPair){ row.push('"'+(cellMap[cellId(c,r)+'_in']?.value||'')+'"'); }
+        else { row.push('"'+(cellMap[cellId(c,r)]?.value||'')+'"'); }
+      }
+      csv+=row.join(',')+'\n';
+    }
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='spreadsheet.csv'; link.click();
+  }
+
+  // Buttons
+  document.getElementById('addRow').onclick=addRow;
+  document.getElementById('addCol').onclick=addColumn;
+  document.getElementById('copySelection').onclick=copySelection;
+  document.getElementById('exportCSV').onclick=exportCSV;
+
+  // Example: Conditional formatting: Column 0 highlights if B1>10
+  columnRules[0] = [{condition:"=B1>10", style:{backgroundColor:'yellow'}, defaultStyle:{backgroundColor:'#f0f8ff'}}];
+
+  // Initialize
+  addColumn(); addColumn(); addRow();
+  grid.style.display='grid'; 
+  grid.style.gridTemplateColumns=`repeat(${columnTypes.reduce((acc,c)=> acc+(c.isPair?2:1),0)},80px)`;
+}
+</script>
+
+</body>
+</html>
