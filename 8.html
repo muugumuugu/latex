@@ -1,0 +1,118 @@
+
+(async function(){
+  // --- Load JSON dynamically ---
+  const res = await fetch("questions_latex.json");  // or json URL
+  const questions = await res.json();
+
+  const wrapper = document.getElementById('gridWrapper');
+  const columnTypes = [];  // type: {type, isPair, name}
+  const cellMap = {};
+  let numRows = 0;
+  let numCols = 0;
+
+  // --- Helper functions ---
+  function colName(n){ let s=''; while(n>=0){ s=String.fromCharCode(65+(n%26))+s; n=Math.floor(n/26)-1;} return s; }
+  function rowName(r){ return (r+1).toString(); }
+  function cellId(c,r,suffix=''){ return colName(c)+rowName(r)+(suffix||''); }
+
+  // --- Add columns dynamically ---
+  function addColumn(type, header){
+    columnTypes.push({type, isPair:type==='latex', name: header || colName(numCols)});
+    numCols++;
+  }
+
+  function addRow(){
+    numRows++;
+    renderTable();
+  }
+
+  // --- Render table ---
+  function renderTable(){
+    wrapper.innerHTML = '';
+    const table = document.createElement('table'); table.className='sheet';
+    const thead = document.createElement('thead'); const trHead=document.createElement('tr');
+
+    const corner = document.createElement('th'); corner.className='corner'; corner.textContent=''; trHead.appendChild(corner);
+
+    for(let c=0;c<numCols;c++){
+      const spec = columnTypes[c];
+      if(spec.isPair){
+        const thIn=document.createElement('th'); thIn.textContent=spec.name+' (In)'; trHead.appendChild(thIn);
+        const thOut=document.createElement('th'); thOut.textContent=spec.name+' (Out)'; trHead.appendChild(thOut);
+      } else {
+        const th=document.createElement('th'); th.textContent=spec.name; trHead.appendChild(th);
+      }
+    }
+    thead.appendChild(trHead); table.appendChild(thead);
+
+    const tbody=document.createElement('tbody');
+    for(let r=0;r<numRows;r++){
+      const tr=document.createElement('tr');
+      const thRow=document.createElement('th'); thRow.className='rowHeader'; thRow.textContent=rowName(r); tr.appendChild(thRow);
+
+      for(let c=0;c<numCols;c++){
+        const spec=columnTypes[c];
+        const td=document.createElement('td');
+        if(spec.isPair){
+          // latex in/out
+          const ta=document.createElement('textarea'); ta.className='input-cell'; ta.value=cellMap[cellId(c,r,'_in')]?.value||''; td.appendChild(ta);
+          const tdOut=document.createElement('td'); const divOut=document.createElement('div'); divOut.className='render-cell'; tdOut.appendChild(divOut);
+          tr.appendChild(td); tr.appendChild(tdOut);
+
+          cellMap[cellId(c,r,'_in')]={element:ta, render:divOut, type:'latex', value:ta.value};
+
+          attachLatexHandlers(ta, divOut, cellId(c,r,'_in'));
+
+        } else {
+          const ta=document.createElement('textarea'); ta.className='input-cell'; ta.value=cellMap[cellId(c,r,'')]?.value||''; td.appendChild(ta); tr.appendChild(td);
+          cellMap[cellId(c,r,'')]={element:ta, type:spec.type, value:ta.value};
+          ta.addEventListener('input', ()=>{ cellMap[cellId(c,r,'')].value=ta.value; });
+        }
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody); wrapper.appendChild(table);
+  }
+
+  // --- Attach LaTeX handlers ---
+  function attachLatexHandlers(input, preview, id){
+    let timeout=null;
+    function renderNow(){
+      const code=input.value||'';
+      try{ preview.innerHTML = texme.render(code); }catch(e){preview.innerHTML='<span style="color:red">error</span>';}
+      if(window.MathJax && window.MathJax.Hub){ window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub, preview]); }
+      cellMap[id].value = code;
+    }
+    input.addEventListener('focus', ()=>{ preview.style.display='none'; input.style.display='block'; });
+    input.addEventListener('blur', ()=>{ renderNow(); input.style.display='none'; preview.style.display='block'; });
+    renderNow();
+    preview.addEventListener('click', ()=>{ navigator.clipboard.writeText(preview.innerHTML).catch(()=>{}); preview.style.outline='2px solid green'; setTimeout(()=>preview.style.outline='',300); });
+  }
+
+  // --- Populate initial columns from JSON keys ---
+  if(questions.length>0){
+    const sample = questions[0];
+    Object.keys(sample).forEach(key=>{
+      if(key==='text'||key==='solution'||key==='notes'){
+        addColumn('latex', key);
+      } else if(key==='answer'){
+        addColumn('text', key);
+      } else if(key==='options'||key==='table'||key==='graph'){
+        addColumn('text', key);
+      }
+    });
+    // Add rows
+    questions.forEach(q=>{
+      addRow();
+      const r=numRows-1;
+      Object.keys(q).forEach((k,c)=>{
+        const id = columnTypes[c].isPair ? cellId(c,r,'_in') : cellId(c,r,'');
+        if(cellMap[id]){
+          cellMap[id].element.value = q[k] || '';
+          if(cellMap[id].render) cellMap[id].render.innerHTML = texme.render(q[k]||'');
+        }
+      });
+    });
+  }
+
+})();
