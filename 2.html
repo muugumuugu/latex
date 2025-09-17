@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spreadsheet with LaTeX Pairs</title>
+<script src="texme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
+<style>
+body { font-family: sans-serif; padding: 20px; }
+.container { overflow: auto; max-height: 600px; border: 1px solid #ccc; }
+.grid { display: grid; border-collapse: collapse; }
+.cell { border: 1px solid #ccc; padding: 4px; min-width: 90px; min-height: 40px; box-sizing: border-box; }
+.input-cell { width: 100%; height: 100%; border: none; background: #e8f5ff; resize: none; }
+.render-cell { background: #f1fff1; padding: 4px; overflow-x: auto; }
+.header { background: #ddd; font-weight: bold; text-align: center; position: sticky; z-index: 2; }
+.header.col { top: 0; }
+.header.row { left: 0; }
+.selected { outline: 2px solid #007bff; }
+button { padding: 6px 10px; margin-right: 5px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h2>Spreadsheet with LaTeX Pairs (Aligned & Colored)</h2>
+<div>
+  <button id="addRow">Add Row</button>
+  <button id="addColLatex">Add LaTeX Column Pair</button>
+  <button id="addColText">Add Text Column</button>
+  <button id="addColFormula">Add Formula Column</button>
+  <button id="copySelection">Copy Selected</button>
+  <button id="exportCSV">Export CSV</button>
+</div>
+<div class="container">
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+window.onload = function() {
+  const grid = document.getElementById('grid');
+  const columnTypes = []; // { type:'latex'/'text'/'formula', isPair: true/false }
+  const cellMap = {};
+  let numRows = 0;
+  let numCols = 0; // logical columns
+
+  function colName(n){ let s=''; while(n>=0){ s=String.fromCharCode(65+n%26)+s; n=Math.floor(n/26)-1;} return s; }
+  function rowName(n){ return n+1; }
+  function cellId(c,r,sub=''){ return colName(c)+rowName(r)+sub; }
+
+  function evalFormula(formula){
+    if(!formula.startsWith('=')) return formula;
+    let expr = formula.slice(1).replace(/([A-Z]+[0-9]+)/g,m=>{ 
+      const val = cellMap[m]?.value || 0; 
+      return isNaN(val)?0:val; 
+    });
+    try{return eval(expr);}catch(e){return '#ERR';}
+  }
+
+  function recalcAll(){
+    for(const key in cellMap){
+      const c = cellMap[key];
+      if(c.type==='formula') c.value = evalFormula(c.element.value);
+      else c.value = c.element.value;
+    }
+    renderLatexCells();
+  }
+
+  function renderLatexCells(){
+    for(const key in cellMap){
+      const c = cellMap[key];
+      if(c.type==='latex' && c.render) texme.render(c.value, c.render);
+    }
+  }
+
+  function createCell(type,col,row){
+    const idBase = cellId(col,row);
+    if(type==='latex'){
+      const input=document.createElement('textarea'); input.className='input-cell cell';
+      const render=document.createElement('div'); render.className='render-cell cell';
+      input.addEventListener('input',()=>{
+        cellMap[idBase+'_in'].value=input.value;
+        texme.render(input.value, render);
+        recalcAll();
+      });
+      grid.appendChild(input); grid.appendChild(render);
+      cellMap[idBase+'_in']={type:'latex',element:input,value:'',render:render};
+    } else {
+      const input=document.createElement('textarea'); input.className='input-cell cell';
+      input.addEventListener('input',()=>{
+        if(type==='formula') cellMap[idBase].value = evalFormula(input.value);
+        else cellMap[idBase].value = input.value;
+        recalcAll();
+      });
+      grid.appendChild(input);
+      cellMap[idBase]={type,value:'',element:input};
+    }
+  }
+
+  function addColumn(type){
+    if(type==='latex'){
+      const col=numCols;
+      columnTypes.push({type:'latex',isPair:true});
+      const head1=document.createElement('div'); head1.className='cell header col'; head1.textContent=colName(col)+" (In)";
+      const head2=document.createElement('div'); head2.className='cell header col'; head2.textContent=colName(col)+" (Out)";
+      grid.appendChild(head1); grid.appendChild(head2);
+      for(let r=0;r<numRows;r++) createCell('latex',col,r);
+    } else {
+      const col=numCols;
+      columnTypes.push({type,isPair:false});
+      const head=document.createElement('div'); head.className='cell header col'; head.textContent=colName(col);
+      grid.appendChild(head);
+      for(let r=0;r<numRows;r++) createCell(type,col,r);
+    }
+    numCols++;
+    updateGridTemplate();
+  }
+
+  function addRow(){
+    const row=numRows;
+    const head=document.createElement('div'); head.className='cell header row'; head.textContent=rowName(row);
+    grid.appendChild(head);
+    for(let c=0;c<numCols;c++) createCell(columnTypes[c].type,c,row);
+    numRows++;
+  }
+
+  function updateGridTemplate(){
+    const gridCols = 1 + columnTypes.reduce((acc,c)=> acc+(c.isPair?2:1),0); // +1 for row header
+    grid.style.gridTemplateColumns=`repeat(${gridCols},100px)`;
+  }
+
+  function copySelection(){
+    const selected=Array.from(grid.querySelectorAll('.selected'));
+    if(!selected.length) return;
+    const text=selected.map(c=>c.value||c.textContent).join('\t');
+    const temp=document.createElement('textarea'); document.body.appendChild(temp);
+    temp.value=text; temp.select(); document.execCommand('copy'); document.body.removeChild(temp);
+    alert('Copied '+selected.length+' cells!');
+  }
+
+  function exportCSV(){
+    let csv='';
+    for(let r=0;r<numRows;r++){
+      let row=[];
+      for(let c=0;c<numCols;c++){
+        const t = columnTypes[c];
+        if(t.isPair){ row.push('"'+(cellMap[cellId(c,r)+'_in']?.value||'')+'"'); }
+        else { row.push('"'+(cellMap[cellId(c,r)]?.value||'')+'"'); }
+      }
+      csv+=row.join(',')+'\n';
+    }
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='spreadsheet.csv'; link.click();
+  }
+
+  // Buttons
+  document.getElementById('addRow').onclick=addRow;
+  document.getElementById('addColLatex').onclick=()=>addColumn('latex');
+  document.getElementById('addColText').onclick=()=>addColumn('text');
+  document.getElementById('addColFormula').onclick=()=>addColumn('formula');
+  document.getElementById('copySelection').onclick=copySelection;
+  document.getElementById('exportCSV').onclick=exportCSV;
+
+  // Initialize with 1 LaTeX pair and 1 row
+  addColumn('latex');
+  addRow();
+}
+</script>
+
+</body>
+</html>
