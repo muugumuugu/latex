@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spreadsheet with LaTeX + Grid</title>
+<script src="texme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
+<style>
+body { font-family: sans-serif; padding: 20px; display: flex; gap: 20px; }
+.container { overflow: auto; max-height: 600px; border: 1px solid #ccc; flex: 1; }
+.grid { display: grid; border-collapse: collapse; }
+.cell { border: 1px solid #ccc; min-width: 90px; min-height: 40px; box-sizing: border-box; }
+.input-cell { width: 100%; height: 100%; border: none; background: #e8f5ff; resize: none; }
+.render-cell { background: #f1fff1; padding: 4px; overflow-x: auto; }
+.header { background: #ddd; font-weight: bold; text-align: center; position: sticky; z-index: 2; }
+.header.col { top: 0; }
+.header.row { left: 0; }
+button { padding: 4px 8px; margin: 2px; cursor: pointer; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div>
+  <h2>Spreadsheet</h2>
+  <div>
+    <button id="addRow">Add Row</button>
+    <button id="addColLatex">Add LaTeX Pair</button>
+    <button id="addColText">Add Text Col</button>
+    <button id="addColFormula">Add Formula Col</button>
+  </div>
+  <div class="container">
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<script>
+window.onload = function() {
+  const grid = document.getElementById('grid');
+  const columnTypes = []; // track column definitions
+  const cellMap = {}; // map A1_in, etc
+  let numRows = 0;
+  let numCols = 0;
+
+  // --- Utilities ---
+  function colName(n){ let s=''; while(n>=0){ s=String.fromCharCode(65+n%26)+s; n=Math.floor(n/26)-1;} return s; }
+  function rowName(n){ return n+1; }
+  function cellId(c,r,suffix=''){ return colName(c)+rowName(r)+suffix; }
+
+  function updateGridTemplate(){
+    let totalCols = 1; // row header
+    columnTypes.forEach(ct=> totalCols += ct.isPair ? 2 : 1);
+    grid.style.gridTemplateColumns = `repeat(${totalCols}, 100px)`;
+  }
+
+  // --- Clipboard Helpers ---
+  function copyTextToClipboard(text) {
+    navigator.clipboard.writeText(text);
+  }
+  function copyRenderToClipboard(el) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+    el.style.outline = "2px solid green";
+    setTimeout(()=> el.style.outline="", 400);
+  }
+
+  // --- LaTeX Handler (adapted main.js) ---
+  function attachLatexHandlers(input, preview, id) {
+    const texmeLine = '<!DOCTYPE html><script src="texme.js"></script><textarea>';
+    let timeout = null;
+
+    function normalizeInput() {
+      let code = input.value.replace(/^\s+/, '');
+      if (!code.startsWith(texmeLine) && code.length > 0) {
+        code = texmeLine + '\n\n' + code;
+      }
+      input.value = code;
+    }
+    function renderPreview() {
+      let code = input.value.replace(texmeLine, '').trim();
+      preview.innerHTML = texme.render(code);
+      window.MathJax.Hub.Queue(['resetEquationNumbers', MathJax.InputJax.TeX],
+                               ['Typeset', window.MathJax.Hub, preview]);
+      cellMap[id].value = code;
+    }
+    function handleInput() { normalizeInput(); renderPreview(); }
+    function scheduleInputHandler() {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(handleInput, 100);
+    }
+    input.onkeyup = scheduleInputHandler;
+    input.onpaste = scheduleInputHandler;
+    input.oncut = scheduleInputHandler;
+  }
+
+  // --- Cell Creation ---
+  function createCell(type,col,row){
+    const idBase = cellId(col,row);
+    if(type==='latex'){
+      const input=document.createElement('textarea'); input.className='input-cell cell';
+      const render=document.createElement('div'); render.className='render-cell cell';
+      const id=idBase+'_in';
+      grid.appendChild(input); grid.appendChild(render);
+      cellMap[id]={type:'latex',element:input,value:'',render:render};
+      attachLatexHandlers(input, render, id);
+
+      input.title = "Click to copy LaTeX source";
+      input.addEventListener('click', ()=> {
+        copyTextToClipboard(input.value);
+        input.style.outline="2px solid blue"; setTimeout(()=>input.style.outline="",400);
+      });
+      render.title = "Click to copy rendered HTML";
+      render.style.cursor="pointer";
+      render.addEventListener('click', ()=> copyRenderToClipboard(render));
+    } else {
+      const input=document.createElement('textarea'); input.className='input-cell cell';
+      input.addEventListener('input',()=> cellMap[idBase].value=input.value);
+      grid.appendChild(input);
+      cellMap[idBase]={type,value:'',element:input};
+    }
+  }
+
+  // --- Add Column ---
+  function addColumn(type){
+    const col=numCols;
+    if(type==='latex'){
+      columnTypes.push({type:'latex',isPair:true});
+      // headers
+      const headIn=document.createElement('div'); headIn.className='cell header col'; headIn.textContent=colName(col)+" (In)";
+      const headOut=document.createElement('div'); headOut.className='cell header col'; headOut.textContent=colName(col)+" (Out)";
+      grid.appendChild(headIn); grid.appendChild(headOut);
+      for(let r=0;r<numRows;r++) createCell('latex',col,r);
+    } else {
+      columnTypes.push({type,isPair:false});
+      const head=document.createElement('div'); head.className='cell header col'; head.textContent=colName(col);
+      grid.appendChild(head);
+      for(let r=0;r<numRows;r++) createCell(type,col,r);
+    }
+    numCols++;
+    updateGridTemplate();
+  }
+
+  // --- Add Row ---
+  function addRow(){
+    const row=numRows;
+    const head=document.createElement('div'); head.className='cell header row'; head.textContent=rowName(row);
+    grid.appendChild(head);
+    for(let c=0;c<numCols;c++) createCell(columnTypes[c].type,c,row);
+    numRows++;
+  }
+
+  // --- Buttons ---
+  document.getElementById('addRow').onclick=addRow;
+  document.getElementById('addColLatex').onclick=()=>addColumn('latex');
+  document.getElementById('addColText').onclick=()=>addColumn('text');
+  document.getElementById('addColFormula').onclick=()=>addColumn('formula');
+
+  // --- Init ---
+  // first cell is top-left corner empty
+  const corner=document.createElement('div'); corner.className='cell header'; corner.textContent='';
+  grid.appendChild(corner);
+  updateGridTemplate();
+  addColumn('latex');
+  addRow();
+}
+</script>
+
+</body>
+</html>
