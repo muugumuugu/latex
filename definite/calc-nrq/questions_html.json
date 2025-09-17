@@ -1,0 +1,657 @@
+[
+  {
+    "id": "A1",
+    "text": "",
+    "options": {
+      "A": "$\\frac{2}{3}$",
+      "B": "0",
+      "C": "$-\\frac{4}{3}$",
+      "D": "-2"
+    },
+    "answer": "C",
+    "solution": "The integral is equal to $\\left.\\left(\\frac{1}{3^2}-\\frac{1}{2^2}-x\\right)\\right|_{-1} ^1=-\\frac{7}{6}-\\frac{1}{6}$",
+    "notes": "The integral is equal to $\\left.\\left(\\frac{1}{3^2}-\\frac{1}{2^2}-x\\right)\\right|_{-1} ^1=-\\frac{7}{6}-\\frac{1}{6}$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A2",
+    "text": "",
+    "options": {
+      "A": "$\\frac{3}{4}$",
+      "B": "$1-\\frac{1}{3} \\ln 2$",
+      "C": "$1-\\ln 2$",
+      "D": "$-\\frac{1}{3} \\ln 2$"
+    },
+    "answer": "B",
+    "solution": "Remite as $\\int_1^2 \\left\\lvert\\,\\left(\\left.1-\\frac{1}{3} \\frac{1}{x} \\right\\rvert\\, d t\\right.$ his equals \\right.  $\\left.\\left|x-\\frac{1}{3} \\ln x\\right|\\right|_1 ^2=2-\\frac{1}{3} \\ln 2-1$",
+    "notes": "Remite as $\\int_1^2 \\left\\lvert\\,\\left(\\left.1-\\frac{1}{3} \\frac{1}{x} \\right\\rvert\\, d t\\right.$ his equals \\right.  $\\left.\\left|x-\\frac{1}{3} \\ln x\\right|\\right|_1 ^2=2-\\frac{1}{3} \\ln 2-1$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A3",
+    "text": "",
+    "options": {
+      "A": "-2",
+      "B": "4",
+      "C": "-1",
+      "D": "2"
+    },
+    "answer": "D",
+    "solution": "Rewrite as  $-\\int_0^3(4-i)^{-12}\\left(-1(4)=-2 \\sqrt{4-1} \\int_0^1=-2(1-2)\\right.$",
+    "notes": "Rewrite as  $-\\int_0^3(4-i)^{-12}\\left(-1(4)=-2 \\sqrt{4-1} \\int_0^1=-2(1-2)\\right.$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A4",
+    "text": "",
+    "options": {
+      "A": "2",
+      "B": "$\\frac{14}{9}$",
+      "C": "$\\frac{14}{3}$",
+      "D": "$\\frac{7}{2}$"
+    },
+    "answer": "B",
+    "solution": "This integral equals $\\frac{1}{3} \\int_{-1}^0(3 u+4)^{1 / 2} \\cdot 3 d u=\\frac{1}{3},\\left.\\frac{2}{3}(3 u+4)^{3 a}\\right|_{-1} ^0$ $=\\frac{2}{9}\\left(4^{1 / 2}-1^{1 / 2}\\right)^{-1}$",
+    "notes": "This integral equals $\\frac{1}{3} \\int_{-1}^0(3 u+4)^{1 / 2} \\cdot 3 d u=\\frac{1}{3},\\left.\\frac{2}{3}(3 u+4)^{3 a}\\right|_{-1} ^0$ $=\\frac{2}{9}\\left(4^{1 / 2}-1^{1 / 2}\\right)^{-1}$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A5",
+    "text": "",
+    "options": {
+      "A": "$\\ln 3$",
+      "B": "$\\frac{1}{2} \\ln \\frac{3}{2}$",
+      "C": "$\\frac{16}{9}$",
+      "D": "$\\ln \\sqrt{3}$"
+    },
+    "answer": "D",
+    "solution": "$\\frac{1}{2} \\int_2^3 \\frac{2 d y}{2 y-3}=\\left.\\frac{1}{2} \\ln (2 y-3)\\right|_2 ^3=\\frac{1}{2}(\\ln 3-\\ln 1)$",
+    "notes": "$\\frac{1}{2} \\int_2^3 \\frac{2 d y}{2 y-3}=\\left.\\frac{1}{2} \\ln (2 y-3)\\right|_2 ^3=\\frac{1}{2}(\\ln 3-\\ln 1)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A6",
+    "text": "",
+    "options": {
+      "A": "1",
+      "B": "$\\frac{\\pi}{6}$",
+      "C": "-1",
+      "D": "2"
+    },
+    "answer": "A",
+    "solution": "Rewrite as  $\\frac{1}{2} \\int_0^{\\sqrt{5}}\\left(4-x^2\\right)^{-1 / 2}(-2 x d x)=\\left.\\frac{1}{2} \\cdot 2 \\sqrt{4-x^3}\\right|_0 ^{\\sqrt{5}}=-(1-2)$",
+    "notes": "Rewrite as  $\\frac{1}{2} \\int_0^{\\sqrt{5}}\\left(4-x^2\\right)^{-1 / 2}(-2 x d x)=\\left.\\frac{1}{2} \\cdot 2 \\sqrt{4-x^3}\\right|_0 ^{\\sqrt{5}}=-(1-2)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A7",
+    "text": "",
+    "options": {
+      "A": "$\\frac{1}{4}$",
+      "B": "$\\frac{1}{2}$",
+      "C": "0",
+      "D": "4"
+    },
+    "answer": "C",
+    "solution": "$\\frac{1}{2} \\int_0^1(2 t-1)^3(2 \\Delta t)=\\left.\\frac{1}{2} \\cdot \\frac{(2 t-1)^4}{4}\\right|_0 ^1=\\frac{1}{2}\\left(\\frac{(2 \\cdot 1-1)^4}{4}-\\frac{(2 \\cdot 0-1)^4}{4}\\right)$",
+    "notes": "$\\frac{1}{2} \\int_0^1(2 t-1)^3(2 \\Delta t)=\\left.\\frac{1}{2} \\cdot \\frac{(2 t-1)^4}{4}\\right|_0 ^1=\\frac{1}{2}\\left(\\frac{(2 \\cdot 1-1)^4}{4}-\\frac{(2 \\cdot 0-1)^4}{4}\\right)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A8",
+    "text": "",
+    "options": {
+      "A": "$\\frac{25}{3}$",
+      "B": "$\\frac{41}{3}$",
+      "C": "$\\frac{100}{3}$",
+      "D": "$\\frac{5}{3}$"
+    },
+    "answer": "A",
+    "solution": "Divide: $\\int_4^8\\left(x^{-1 / 2}+\\frac{1}{2} x^{1 / 2}\\right) d x=\\left.\\left(2 x^{1 / 2}+\\frac{1}{2} \\cdot \\frac{2}{3} x^{3 / 2}\\right)\\right|^3$, $=\\left(2 \\cdot 3+\\frac{1}{3} \\cdot 27\\right)-\\left(2 \\cdot 2+\\frac{1}{3} \\cdot 8\\right)$",
+    "notes": "Divide: $\\int_4^8\\left(x^{-1 / 2}+\\frac{1}{2} x^{1 / 2}\\right) d x=\\left.\\left(2 x^{1 / 2}+\\frac{1}{2} \\cdot \\frac{2}{3} x^{3 / 2}\\right)\\right|^3$, $=\\left(2 \\cdot 3+\\frac{1}{3} \\cdot 27\\right)-\\left(2 \\cdot 2+\\frac{1}{3} \\cdot 8\\right)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A9",
+    "text": "",
+    "options": {
+      "A": "$\\frac{\\pi}{2}$",
+      "B": "0",
+      "C": "$\\frac{\\pi}{6}$",
+      "D": "$-\\frac{\\pi}{2}$"
+    },
+    "answer": "C",
+    "solution": "$\\frac{1}{9} \\int_{-3}^3 \\frac{d x}{1+\\frac{x^2}{3}}=3 \\cdot \\frac{1}{9} \\int_{-3}^3 \\frac{\\frac{1}{3} d x}{1+\\left(\\frac{x^2}{3}\\right)^2}=\\left.\\frac{1}{3} \\tan ^{-1} \\frac{x}{3}\\right|_{-3} ^3=\\frac{1}{3}\\left(\\frac{\\pi}{4}-\\left(-\\frac{\\pi}{4}\\right)\\right)$",
+    "notes": "$\\frac{1}{9} \\int_{-3}^3 \\frac{d x}{1+\\frac{x^2}{3}}=3 \\cdot \\frac{1}{9} \\int_{-3}^3 \\frac{\\frac{1}{3} d x}{1+\\left(\\frac{x^2}{3}\\right)^2}=\\left.\\frac{1}{3} \\tan ^{-1} \\frac{x}{3}\\right|_{-3} ^3=\\frac{1}{3}\\left(\\frac{\\pi}{4}-\\left(-\\frac{\\pi}{4}\\right)\\right)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A10",
+    "text": "",
+    "options": {
+      "A": "$\\frac{1}{e}-1$",
+      "B": "$-\\frac{1}{e}$",
+      "C": "$1-\\frac{1}{e}$",
+      "D": "$\\frac{1}{e}$"
+    },
+    "answer": "C",
+    "solution": "You get $-\\left.e^{-s}\\right|_0 ^1=-\\left(e^{-1}-1\\right)$.",
+    "notes": "You get $-\\left.e^{-s}\\right|_0 ^1=-\\left(e^{-1}-1\\right)$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A11",
+    "text": "",
+    "options": {
+      "A": "$e-1$",
+      "B": "$\\frac{1}{2}(e-1)$",
+      "C": "$2(e-1)$",
+      "D": "$\\frac{e}{2}-1$"
+    },
+    "answer": "B",
+    "solution": "$\\frac{1}{2} \\int_0^1 e^{x^2}(2 x d x)=\\left.\\frac{1}{2} e^{e^3}\\right|_0 ^1=\\frac{1}{2}(e-1)$",
+    "notes": "$\\frac{1}{2} \\int_0^1 e^{x^2}(2 x d x)=\\left.\\frac{1}{2} e^{e^3}\\right|_0 ^1=\\frac{1}{2}(e-1)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A12",
+    "text": "",
+    "options": {
+      "A": "2",
+      "B": "$\\frac{1}{2}$",
+      "C": "-1",
+      "D": "$-\\frac{1}{2}$"
+    },
+    "answer": "B",
+    "solution": "Evaluate $-\\left.\\frac{1}{2} \\cos 2 \\theta\\right|_0 ^{1 / 4}$, which equals $-\\frac{1}{2}(0-1)$.",
+    "notes": "Evaluate $-\\left.\\frac{1}{2} \\cos 2 \\theta\\right|_0 ^{1 / 4}$, which equals $-\\frac{1}{2}(0-1)$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A13",
+    "text": "",
+    "options": {
+      "A": "$-\\ln 2$",
+      "B": "$\\frac{3}{4}$",
+      "C": "$\\frac{1}{2} \\ln 2$",
+      "D": "$\\ln 2$"
+    },
+    "answer": "D",
+    "solution": "$-\\int_1^a \\frac{-d x}{3-z}=-\\left.\\ln (3-z)\\right|_1 ^2=-(\\ln 1-\\ln 2)$",
+    "notes": "$-\\int_1^a \\frac{-d x}{3-z}=-\\left.\\ln (3-z)\\right|_1 ^2=-(\\ln 1-\\ln 2)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A14",
+    "text": "",
+    "options": {
+      "A": "$2 \\int_1^2 \\frac{\\cos ^2 \\theta}{\\sin \\theta} d \\theta$",
+      "B": "$\\int_{\\pi / 6}^{\\pi / 2} \\frac{\\cos \\theta}{\\sin \\theta} d \\theta$",
+      "C": "$2 \\int_{\\pi / 6}^{\\pi / 2} \\frac{\\cos ^2 \\theta}{\\sin \\theta} d \\theta$",
+      "D": "$\\int_1^2 \\frac{\\cos \\theta}{\\sin \\theta} d \\theta$"
+    },
+    "answer": "C",
+    "solution": "II $x=2 \\sin \\theta, \\sqrt{4-x^2}=2 \\cos \\theta, d x=2 \\cos \\theta d \\theta$. When $x=1, \\theta=\\frac{\\pi}{6}$; when $x=2, \\theta=\\frac{\\pi}{2}$. The integral is equivalent to $\\int_{N / 8}^{\\pi / 2} \\frac{(2 \\cos \\theta)(2 \\cos \\theta) d \\theta}{2 \\sin \\theta}$.",
+    "notes": "II $x=2 \\sin \\theta, \\sqrt{4-x^2}=2 \\cos \\theta, d x=2 \\cos \\theta d \\theta$. When $x=1, \\theta=\\frac{\\pi}{6}$; when $x=2, \\theta=\\frac{\\pi}{2}$. The integral is equivalent to $\\int_{N / 8}^{\\pi / 2} \\frac{(2 \\cos \\theta)(2 \\cos \\theta) d \\theta}{2 \\sin \\theta}$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A15",
+    "text": "",
+    "options": {
+      "A": "$-\\frac{2}{3}$",
+      "B": "1",
+      "C": "$\\frac{2}{3}$",
+      "D": "0"
+    },
+    "answer": "C",
+    "solution": "Braluate $-\\int_0^\\pi \\cos ^2 \\theta(-\\sin \\theta d \\theta)$. This equals $-\\left.\\frac{1}{3} \\cos ^3 \\theta\\right|_0 ^\\pi=-\\frac{1}{3}(-1-1)$.",
+    "notes": "Braluate $-\\int_0^\\pi \\cos ^2 \\theta(-\\sin \\theta d \\theta)$. This equals $-\\left.\\frac{1}{3} \\cos ^3 \\theta\\right|_0 ^\\pi=-\\frac{1}{3}(-1-1)$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A16",
+    "text": "",
+    "options": {
+      "A": "$\\frac{1}{2}$",
+      "B": "$\\frac{1}{2}\\left(e^2-1\\right)$",
+      "C": "1",
+      "D": "$e-1$"
+    },
+    "answer": "A",
+    "solution": "$\\int_1^0(\\ln x)\\left(\\frac{1}{x} d x\\right)=\\left.\\frac{1}{2} \\ln ^2 x\\right|_1 ^1=\\frac{1}{2}(1-0)$",
+    "notes": "$\\int_1^0(\\ln x)\\left(\\frac{1}{x} d x\\right)=\\left.\\frac{1}{2} \\ln ^2 x\\right|_1 ^1=\\frac{1}{2}(1-0)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A17",
+    "text": "",
+    "options": {
+      "A": "-1",
+      "B": "$e+1$",
+      "C": "1",
+      "D": "$e-1$"
+    },
+    "answer": "C",
+    "solution": "Use the Parts Formula with $u=x$ and $d v=e^x d x$. Then $d u=d x$ and $v=e^x$.\nThe result is $\\left.\\left|x e^x-\\int e^x d x\\right|\\right|_0 ^1=\\left.\\left(x e^x-e^x\\right)\\right|_0 ^1=(e-e)-(0-1)$.",
+    "notes": "Use the Parts Formula with $u=x$ and $d v=e^x d x$. Then $d u=d x$ and $v=e^x$.\nThe result is $\\left.\\left|x e^x-\\int e^x d x\\right|\\right|_0 ^1=\\left.\\left(x e^x-e^x\\right)\\right|_0 ^1=(e-e)-(0-1)$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A18",
+    "text": "",
+    "options": {
+      "A": "$\\ln 2$",
+      "B": "$\\frac{3}{8}$",
+      "C": "$-\\frac{1}{2} \\ln 2$",
+      "D": "$\\ln \\sqrt{2}$"
+    },
+    "answer": "D",
+    "solution": "$\\frac{1}{2} \\int_0^{\\pi / 6} \\frac{2 \\cos \\theta d \\theta}{1+2 \\sin \\theta}=\\left.\\frac{1}{2} \\ln (1+2 \\sin \\theta)\\right|_0 ^{\\pi / 6}$ and get $\\frac{1}{2}(\\ln (1+1)-\\ln 1)$",
+    "notes": "$\\frac{1}{2} \\int_0^{\\pi / 6} \\frac{2 \\cos \\theta d \\theta}{1+2 \\sin \\theta}=\\left.\\frac{1}{2} \\ln (1+2 \\sin \\theta)\\right|_0 ^{\\pi / 6}$ and get $\\frac{1}{2}(\\ln (1+1)-\\ln 1)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A19",
+    "text": "",
+    "options": {
+      "A": "$\\ln \\sqrt{3}$",
+      "B": "$\\frac{8}{9}$",
+      "C": "$\\ln \\frac{3}{2}$",
+      "D": "$\\ln 3$"
+    },
+    "answer": "A",
+    "solution": "$\\frac{1}{2} \\int_{\\sqrt{2}}^2 \\frac{2 u}{u^2-1} d u=\\left.\\frac{1}{2} \\ln \\left(u^2-1\\right)\\right|_{\\sqrt{2}} ^2=\\frac{1}{2}(\\ln 3-\\ln 1)$",
+    "notes": "$\\frac{1}{2} \\int_{\\sqrt{2}}^2 \\frac{2 u}{u^2-1} d u=\\left.\\frac{1}{2} \\ln \\left(u^2-1\\right)\\right|_{\\sqrt{2}} ^2=\\frac{1}{2}(\\ln 3-\\ln 1)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A20",
+    "text": "",
+    "options": {
+      "A": "$-\\frac{1}{3}$",
+      "B": "$-\\frac{2}{3}$",
+      "C": "$\\frac{2}{3}$",
+      "D": "$\\frac{1}{3}$"
+    },
+    "answer": "D",
+    "solution": "$\\frac{1}{2} \\int_{\\sqrt{2}}^2\\left(u^2-1\\right)^{-2} \\cdot 2 u d u=\\left.\\frac{1}{2\\left(u^2-1\\right)}\\right|_{\\sqrt{2}} ^2=-\\frac{1}{2}\\left(\\frac{1}{3}-\\frac{1}{1}\\right)$",
+    "notes": "$\\frac{1}{2} \\int_{\\sqrt{2}}^2\\left(u^2-1\\right)^{-2} \\cdot 2 u d u=\\left.\\frac{1}{2\\left(u^2-1\\right)}\\right|_{\\sqrt{2}} ^2=-\\frac{1}{2}\\left(\\frac{1}{3}-\\frac{1}{1}\\right)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A21",
+    "text": "",
+    "options": {
+      "A": "1",
+      "B": "$\\frac{1}{2}$",
+      "C": "$-\\frac{1}{2}$",
+      "D": "-1"
+    },
+    "answer": "B",
+    "solution": "$\\frac{1}{2} \\int_{\\pi / 12}^{\\pi / 4} \\sin ^{-2} 2 x \\cos 2 x(2 d x)=-\\left.\\frac{1}{2} \\cdot \\frac{1}{\\sin 2 x}\\right|_{\\pi / 12} ^{\\pi / 4}=-\\frac{1}{2}\\left(\\frac{1}{1}-\\frac{1}{1 / 2}\\right)$",
+    "notes": "$\\frac{1}{2} \\int_{\\pi / 12}^{\\pi / 4} \\sin ^{-2} 2 x \\cos 2 x(2 d x)=-\\left.\\frac{1}{2} \\cdot \\frac{1}{\\sin 2 x}\\right|_{\\pi / 12} ^{\\pi / 4}=-\\frac{1}{2}\\left(\\frac{1}{1}-\\frac{1}{1 / 2}\\right)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A22",
+    "text": "",
+    "options": {
+      "A": "$e$",
+      "B": "$2+e$",
+      "C": "$\\frac{1}{e}$",
+      "D": "$1+e$"
+    },
+    "answer": "A",
+    "solution": "$\\int_0^1\\left(1+e^x\\right) d x=\\left.\\left(x+e^x\\right)\\right|_0 ^1=(1+e)-1$",
+    "notes": "$\\int_0^1\\left(1+e^x\\right) d x=\\left.\\left(x+e^x\\right)\\right|_0 ^1=(1+e)-1$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A23",
+    "text": "",
+    "options": {
+      "A": "$\\ln 2$",
+      "B": "$1+e$",
+      "C": "$-\\ln 2$",
+      "D": "$\\ln \\frac{e+1}{2}$"
+    },
+    "answer": "D",
+    "solution": "Evaluate $\\left.\\ln \\left(e^x+1\\right)\\right|_0 ^1$, getting $\\ln (e+1)-\\ln 2$.",
+    "notes": "Evaluate $\\left.\\ln \\left(e^x+1\\right)\\right|_0 ^1$, getting $\\ln (e+1)-\\ln 2$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A24",
+    "text": "",
+    "options": {
+      "A": "$\\int_{\\pi / 4}^{\\pi / 3} \\sec \\theta d \\theta$",
+      "B": "$\\int_1^{\\sqrt{3}} \\sec ^3 \\theta d \\theta$",
+      "C": "$\\int_{\\pi / 4}^{\\pi / 3} \\sec ^3 \\theta d \\theta$",
+      "D": "$\\int_{\\pi / 4}^{\\pi / 3} \\sec ^2 \\theta \\tan \\theta d \\theta$"
+    },
+    "answer": "C",
+    "solution": "Note that $d x=\\sec ^2 \\theta d \\theta$ and that $\\sqrt{1+\\tan ^2 \\theta}=\\sec \\theta$. Be sure to express the limits as values of $\\theta: 1=\\tan \\theta$ yields $\\theta=\\frac{\\pi}{4} ; \\sqrt{3}=\\tan \\theta$ yields $\\theta=\\frac{\\pi}{3}$.",
+    "notes": "Note that $d x=\\sec ^2 \\theta d \\theta$ and that $\\sqrt{1+\\tan ^2 \\theta}=\\sec \\theta$. Be sure to express the limits as values of $\\theta: 1=\\tan \\theta$ yields $\\theta=\\frac{\\pi}{4} ; \\sqrt{3}=\\tan \\theta$ yields $\\theta=\\frac{\\pi}{3}$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A25",
+    "text": "",
+    "options": {
+      "A": "$\\int_1^2 \\frac{d u}{u^2-1}$",
+      "B": "$\\int_1^2 \\frac{2 d u}{u^2-1}$",
+      "C": "$2 \\int_0^3 \\frac{d u}{(u-1)(u+1)}$",
+      "D": "$2 \\int_1^2 \\frac{d u}{u\\left(u^2-1\\right)}$"
+    },
+    "answer": "B",
+    "solution": "If $u=\\sqrt{x+1}$, then $u^2=x+1$, and $2 u d u=d x$. When you substitute for the limits you get $2 \\int_1^4 \\frac{u d u}{u\\left(u^2-1\\right)}$. Since $u \\neq 0$ on its interval of integration, you may divide the numerator and denominator by it.",
+    "notes": "If $u=\\sqrt{x+1}$, then $u^2=x+1$, and $2 u d u=d x$. When you substitute for the limits you get $2 \\int_1^4 \\frac{u d u}{u\\left(u^2-1\\right)}$. Since $u \\neq 0$ on its interval of integration, you may divide the numerator and denominator by it.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A26",
+    "text": "",
+    "options": {
+      "A": "$-1 / 2$",
+      "B": "3",
+      "C": "4",
+      "D": "-1"
+    },
+    "answer": "C",
+    "solution": "$\\int_0^0 f^{\\prime}(x) d x=f(0)-f(8)=11-7=4$",
+    "notes": "$\\int_0^0 f^{\\prime}(x) d x=f(0)-f(8)=11-7=4$",
+    "table": {
+      "\\hline$x$": [
+        "\\hline 0"
+      ],
+      "$f(x)$": [
+        "11"
+      ],
+      "$f^{\\prime}(x)$ \\\\": [
+        "3 \\\\"
+      ]
+    },
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A27",
+    "text": "",
+    "options": {
+      "A": "19",
+      "B": "36",
+      "C": "38",
+      "D": "54"
+    },
+    "answer": "C",
+    "solution": "On $[0,6]$ with $n=3, \\Delta x=2$. Heights of rectangles at $x=1,3$, and 5 are 5 , 9, and 5, respectively; $M(3)=(5+9+5)(2)$.",
+    "notes": "On $[0,6]$ with $n=3, \\Delta x=2$. Heights of rectangles at $x=1,3$, and 5 are 5 , 9, and 5, respectively; $M(3)=(5+9+5)(2)$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A28",
+    "text": "",
+    "options": {
+      "A": "30",
+      "B": "32",
+      "C": "33",
+      "D": "41"
+    },
+    "answer": "C",
+    "solution": "$\\int_4^{10} f(x) d x \\approx\\left(\\frac{2+6}{2}\\right) \\cdot 2+\\left(\\frac{6+5}{2}\\right) \\cdot 1+\\left(\\frac{5+8}{2}\\right) \\cdot 3 \\approx 33$",
+    "notes": "$\\int_4^{10} f(x) d x \\approx\\left(\\frac{2+6}{2}\\right) \\cdot 2+\\left(\\frac{6+5}{2}\\right) \\cdot 1+\\left(\\frac{5+8}{2}\\right) \\cdot 3 \\approx 33$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A29",
+    "text": "",
+    "options": {
+      "A": "$\\frac{1}{2}&lt;\\int_1^2 \\frac{1}{x} d x&lt;1$",
+      "B": "$\\frac{1}{3}&lt;\\int_1^3 \\frac{1}{x} d x&lt;2$",
+      "C": "$\\frac{1}{3}&lt;\\int_2^3 \\frac{1}{x} d x&lt;\\frac{1}{2}$",
+      "D": "$\\frac{5}{6}&lt;\\int_1^3 \\frac{1}{x} d x&lt;\\frac{3}{2}$"
+    },
+    "answer": "D",
+    "solution": "For $L(2)$ use the circumscribed rectangles: $1 \\cdot 1+\\frac{1}{2} \\cdot 1=\\frac{3}{2}$; for $R(2)$ use the inscribed rectangles: $\\frac{1}{2} \\cdot 1+\\frac{1}{3} \\cdot 1=\\frac{5}{6}$",
+    "notes": "For $L(2)$ use the circumscribed rectangles: $1 \\cdot 1+\\frac{1}{2} \\cdot 1=\\frac{3}{2}$; for $R(2)$ use the inscribed rectangles: $\\frac{1}{2} \\cdot 1+\\frac{1}{3} \\cdot 1=\\frac{5}{6}$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A30",
+    "text": "",
+    "options": {
+      "A": "$L&lt;A&lt;T&lt;R$",
+      "B": "$L&lt;T&lt;A&lt;R$",
+      "C": "$R&lt;A&lt;T&lt;L$",
+      "D": "$R&lt;T&lt;A&lt;L$"
+    },
+    "answer": "D",
+    "solution": "On $[0,1] f(x)=\\cos x$ is decreasing, so $L&gt;A, R&lt;A$, and $T&gt;R$. Furthermore, $f$ is concave downward, so $T&lt;A$.",
+    "notes": "On $[0,1] f(x)=\\cos x$ is decreasing, so $L&gt;A, R&lt;A$, and $T&gt;R$. Furthermore, $f$ is concave downward, so $T&lt;A$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A31",
+    "text": "",
+    "options": {
+      "A": "$\\frac{7}{2}$",
+      "C": "$\\frac{9}{2}$",
+      "D": "5"
+    },
+    "answer": "D",
+    "solution": "On the interval $[-1,3]$ the area under the graph of $y=|x|$ is the sum of the areas of two triangles: $\\frac{1}{2}(1)(1)+\\frac{1}{2}(3)(3)=5$.",
+    "notes": "On the interval $[-1,3]$ the area under the graph of $y=|x|$ is the sum of the areas of two triangles: $\\frac{1}{2}(1)(1)+\\frac{1}{2}(3)(3)=5$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A32",
+    "text": "",
+    "options": {
+      "A": "$\\frac{5}{2}$",
+      "B": "$\\frac{7}{2}$",
+      "C": "$\\frac{11}{2}$",
+      "D": "$\\frac{13}{2}$"
+    },
+    "answer": "D",
+    "solution": "Note that the graph $y=|x+1|$ is the graph of $y=|x|$ translated one unit to the left. The area under the graph $y=|x+1|$ on the interval $[-3,2]$ is the sum of the areas of two triangles: $\\frac{1}{2}(2)(2)+\\frac{1}{2}(3)(3)=\\frac{13}{2}$.",
+    "notes": "Note that the graph $y=|x+1|$ is the graph of $y=|x|$ translated one unit to the left. The area under the graph $y=|x+1|$ on the interval $[-3,2]$ is the sum of the areas of two triangles: $\\frac{1}{2}(2)(2)+\\frac{1}{2}(3)(3)=\\frac{13}{2}$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A33",
+    "text": "",
+    "options": {
+      "A": "2",
+      "B": "4",
+      "C": "$2 \\pi$",
+      "D": "$4 \\pi$"
+    },
+    "answer": "C",
+    "solution": "Because $y=\\sqrt{64-x^2}$ is a semicircle of radius 8 , its area is $\\int_{-6}^3 \\sqrt{64-x^2} d x= \\frac{1}{2} \\cdot \\pi \\cdot(8)^2=32 \\pi$. The domain is $[-8,8]$, or 16 units wide. Hence the average height of the function is $\\frac{1}{8-(-8)} \\int_{-8}^8 \\sqrt{64-x^2} d x=\\frac{1}{16} \\cdot 32 \\pi=2 \\pi$.",
+    "notes": "Because $y=\\sqrt{64-x^2}$ is a semicircle of radius 8 , its area is $\\int_{-6}^3 \\sqrt{64-x^2} d x= \\frac{1}{2} \\cdot \\pi \\cdot(8)^2=32 \\pi$. The domain is $[-8,8]$, or 16 units wide. Hence the average height of the function is $\\frac{1}{8-(-8)} \\int_{-8}^8 \\sqrt{64-x^2} d x=\\frac{1}{16} \\cdot 32 \\pi=2 \\pi$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A34",
+    "text": "",
+    "options": {
+      "A": "$\\frac{3}{\\pi}$",
+      "B": "$\\frac{3(2-\\sqrt{3})}{\\pi}$",
+      "C": "$\\frac{3}{2 \\pi}$",
+      "D": "$\\frac{2}{3 x}$"
+    },
+    "answer": "B",
+    "solution": "The average value is equal to $\\frac{1}{\\pi / 2-\\pi / 3} \\int_{v / 3}^{\\pi / 2} \\cos x d x$.",
+    "notes": "The average value is equal to $\\frac{1}{\\pi / 2-\\pi / 3} \\int_{v / 3}^{\\pi / 2} \\cos x d x$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A35",
+    "text": "",
+    "options": {
+      "A": "$\\frac{3 \\sqrt{3}}{\\pi}$",
+      "B": "$\\frac{\\sqrt{3}}{\\pi}$",
+      "C": "$\\frac{12}{\\pi}(\\sqrt{3}-1)$",
+      "D": "$3(\\sqrt{3}-1)$"
+    },
+    "answer": "C",
+    "solution": "The average value is equal to $\\frac{1}{\\pi / 4-\\pi / 6} \\int_{v / 6}^{\\pi / 4} \\csc ^2 x \\mathrm{~d} x$.",
+    "notes": "The average value is equal to $\\frac{1}{\\pi / 4-\\pi / 6} \\int_{v / 6}^{\\pi / 4} \\csc ^2 x \\mathrm{~d} x$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A36",
+    "text": "",
+    "options": {
+      "A": "$\\lim _{n \\rightarrow \\infty} \\sum_{k=1}^n\\left(\\left(1+\\frac{k}{n}\\right)^3 \\cdot\\left(\\frac{4}{n}\\right)\\right)$",
+      "B": "$\\lim _{n \\rightarrow \\infty} \\sum_{k=1}^n\\left(\\left(1+\\frac{4 k}{n}\\right)^3 \\cdot\\left(\\frac{1}{n}\\right)\\right)$",
+      "C": "$\\lim _{k \\rightarrow \\infty} \\sum_{k=1}^n\\left(\\left(1+\\frac{4 k}{n}\\right)^3 \\cdot\\left(\\frac{4}{n}\\right)\\right)$",
+      "D": "$\\lim _{k \\rightarrow \\infty} \\sum_{k=1}^n\\left(\\left(1+\\frac{k}{n}\\right)^3 \\cdot\\left(\\frac{1}{n}\\right)\\right)$"
+    },
+    "answer": "C",
+    "solution": "From the integral, we get $a=1, b=5$, so $\\Delta x=\\frac{5-1}{n}=\\frac{4}{n}$ and $x_k=a+k \\cdot \\Delta x=1+\\frac{4 k}{n}= 1+\\frac{4 k}{n}$. Replace $x$ with $x_k$ and replace $d x$ with $\\Delta x$ in the integrand to get the general term in the summation.",
+    "notes": "From the integral, we get $a=1, b=5$, so $\\Delta x=\\frac{5-1}{n}=\\frac{4}{n}$ and $x_k=a+k \\cdot \\Delta x=1+\\frac{4 k}{n}= 1+\\frac{4 k}{n}$. Replace $x$ with $x_k$ and replace $d x$ with $\\Delta x$ in the integrand to get the general term in the summation.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A37",
+    "text": "",
+    "options": {
+      "A": "$\\lim _{n \\rightarrow \\infty} \\sum_{k=1}^\\pi\\left(\\sin \\left(\\frac{3 k}{n}\\right) \\cdot\\left(\\frac{1}{n}\\right)\\right)$",
+      "B": "$\\lim _{n \\rightarrow \\infty} \\sum_{k=1}^n\\left(\\sin \\left(\\frac{3 \\pi k}{n}\\right) \\cdot\\left(\\frac{1}{n}\\right)\\right)$",
+      "C": "$\\lim _{n \\rightarrow \\infty} \\sum_{k=1}^n\\left(\\sin \\left(\\frac{3 k}{n}\\right) \\cdot\\left(\\frac{\\pi}{n}\\right)\\right)$",
+      "D": "$\\lim _{n \\rightarrow \\infty} \\sum_{k=1}^n\\left(\\sin \\left(\\frac{3 \\pi k}{n}\\right) \\cdot\\left(\\frac{\\pi}{n}\\right)\\right)$"
+    },
+    "answer": "D",
+    "solution": "From the integral, we get $a=0, b=\\pi$, so $\\Delta x=\\frac{\\pi-0}{n}=\\frac{\\pi}{n}$ and $x_k=a+k \\cdot \\Delta x= 0+\\frac{\\pi k}{n}=\\frac{\\pi k}{n}$, Replace $x$ with $x_k$ and replace $d x$ with $\\Delta x$ in the integrand to get the general term in the summation.",
+    "notes": "From the integral, we get $a=0, b=\\pi$, so $\\Delta x=\\frac{\\pi-0}{n}=\\frac{\\pi}{n}$ and $x_k=a+k \\cdot \\Delta x= 0+\\frac{\\pi k}{n}=\\frac{\\pi k}{n}$, Replace $x$ with $x_k$ and replace $d x$ with $\\Delta x$ in the integrand to get the general term in the summation.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A38",
+    "text": "",
+    "options": {
+      "A": "$\\int_1^4 \\sin (6 x) d x$",
+      "B": "$\\int_0^3 \\sin (2 x+1) d x$",
+      "C": "$\\int_1^4 \\sin (2 x) d x$",
+      "D": "$\\int_0^3 \\sin (6 x+1) d x$"
+    },
+    "answer": "B",
+    "solution": "From the Riemann Sum, we see $\\Delta x=\\frac{3}{n}$, then $k \\cdot \\Delta x=\\frac{3 k}{n}$. Notice that the term involving $k$ in the Riemann Sum is not equal to $\\frac{3 k}{n}$ but $2\\left(\\frac{3 k}{n}\\right)$. Thus, we choose $x_k=\\frac{3 k}{n}$, so $a=0$ and $\\Delta x=\\frac{b-0}{n}=\\frac{3}{n}$, so $b=3$. Since $x_k$ replaces $x_1 f(x)=\\sin (2 x+1)$ giving the integral $\\int_0^3 \\sin (2 x+1) d x$.",
+    "notes": "From the Riemann Sum, we see $\\Delta x=\\frac{3}{n}$, then $k \\cdot \\Delta x=\\frac{3 k}{n}$. Notice that the term involving $k$ in the Riemann Sum is not equal to $\\frac{3 k}{n}$ but $2\\left(\\frac{3 k}{n}\\right)$. Thus, we choose $x_k=\\frac{3 k}{n}$, so $a=0$ and $\\Delta x=\\frac{b-0}{n}=\\frac{3}{n}$, so $b=3$. Since $x_k$ replaces $x_1 f(x)=\\sin (2 x+1)$ giving the integral $\\int_0^3 \\sin (2 x+1) d x$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "A39",
+    "text": "",
+    "options": {
+      "A": "6.25",
+      "B": "6.41",
+      "C": "9.2",
+      "D": "10"
+    },
+    "answer": "A",
+    "solution": "The integral is of the form $\\int u^3 d u ;$ evaluate $\\left.\\frac{1}{4} \\sin ^4 \\alpha\\right|_{x / 4} ^{3 / 2}$\nB1. (D) The average value is $\\frac{1}{5-0} \\int_0^5 f(x) d x$. The integral represents the area of a trapezoid: $\\frac{1}{2}(5+3) \\cdot 10=40$. The average value is $\\frac{1}{5}(40)$.\nB2. (B) Since $x^2+y^2=16$ is a circle, the given integral equals the area of a semicircle of radius 4.\nB3. (D) A vertical line at $x=2$ divides the area under $f$ into a trapezoid and a triangle; hence, $\\int_0^5 f(x) d x=\\frac{1}{2}(2+4)(2)+\\frac{1}{2}(4)(4)=14$. Thus, the average value of $f$ on $[0,6]$ is $\\frac{14}{6}=2 \\frac{1}{3}$. There are points on $f$ with $y$-values of $2 \\frac{1}{3}$ in the intervals $[0,2]$ and $[2,4]$.\nB4. (B) $\\int_0^2 f(3 x) d x=\\frac{1}{3} \\int_0^2 f^{\\prime}(3 x)(3 d x)=\\left.\\frac{1}{3} f(3 x)\\right|_0 ^2=\\frac{1}{3}(f(6)-f(0))=\\frac{1}{3}(0-2)$\nB5. (D) $g^{\\prime}(x)=f(2 x) \\cdot 2$; thus $g^{\\prime}(1)=f(2) \\cdot 2$\nB6. (B) $\\int_0^6\\left(x^2-f(x)\\right) d x=\\int_0^6 x^2 d x-\\int_0^6 f(x) d x=\\left.\\frac{x^3}{3}\\right|_0 ^6-14$. (Why 14 ? See the Solution for Question B3.)\nB7. (C) This is the Mean Value Theorem for Integrals (page 242).\nB8. (D) This is theorem (2) from page 242. Prove by counterexamples that (A), (B), and (C) are false.\nB9. (A) This is a restatement of the Fundamental Theorem. In theorem (1) from page 242, interchange $t$ and $x$.\nB10. (C) Apply theorem (1) from page 242, noting that $$ F^{\\prime}(u)=\\frac{d}{d u} \\int_a^u f(x) d x=f(u) $$\nB11. (D) Let $y=\\int_{\\pi / 2}^{x^2} \\sqrt{\\sin t} d t$ and $u=x^2$; then $$ y=\\int_{\\pi / 2}^u \\sqrt{\\sin t} d t $$ By the Chain Rule, $\\frac{d y}{d x}=\\frac{d y}{d u} \\cdot \\frac{d u}{d x}=\\sqrt{\\sin u} \\cdot 2 x$, where theorem (1) from page 242 is used to find $\\frac{d y}{d u}$. Replace $u$ by $x^2$.\nB12. (D) Since $d x=-4 \\sin \\theta d \\theta$, you get the new integral $-48 \\int_{\\pi / 3}^0 \\sin ^2 \\theta \\cos \\theta d \\theta$. Use theorem (4) from page 242 to get the correct answer.\nB13. (D) $L(5)=9 \\cdot 5+11 \\cdot 7+7 \\cdot 8+3 \\cdot 4+1 \\cdot 6$\nB14. (B) The average value is $\\frac{1}{10-0} \\int_0^{10} x^2 d x=\\left.\\frac{1}{10} \\cdot \\frac{x^3}{3}\\right|_0 ^{10}=\\frac{100}{3}$. Solve $x^2=\\frac{100}{3}$.\nB15. (C) $\\left.\\frac{1}{5-0} \\int_0^5 f(x) d x=\\frac{1}{5}\\left(\\int_0^2 x^3 d x+\\int_2^5 4 x d x\\right)=\\frac{1}{5}\\left|\\frac{x^4}{4}\\right|_0^2+\\left.2 x^2\\right|_2 ^5 \\right\\rvert\\,=\\frac{1}{5}(4+42)$",
+    "notes": "The integral is of the form $\\int u^3 d u ;$ evaluate $\\left.\\frac{1}{4} \\sin ^4 \\alpha\\right|_{x / 4} ^{3 / 2}$\nB1. (D) The average value is $\\frac{1}{5-0} \\int_0^5 f(x) d x$. The integral represents the area of a trapezoid: $\\frac{1}{2}(5+3) \\cdot 10=40$. The average value is $\\frac{1}{5}(40)$.\nB2. (B) Since $x^2+y^2=16$ is a circle, the given integral equals the area of a semicircle of radius 4.\nB3. (D) A vertical line at $x=2$ divides the area under $f$ into a trapezoid and a triangle; hence, $\\int_0^5 f(x) d x=\\frac{1}{2}(2+4)(2)+\\frac{1}{2}(4)(4)=14$. Thus, the average value of $f$ on $[0,6]$ is $\\frac{14}{6}=2 \\frac{1}{3}$. There are points on $f$ with $y$-values of $2 \\frac{1}{3}$ in the intervals $[0,2]$ and $[2,4]$.\nB4. (B) $\\int_0^2 f(3 x) d x=\\frac{1}{3} \\int_0^2 f^{\\prime}(3 x)(3 d x)=\\left.\\frac{1}{3} f(3 x)\\right|_0 ^2=\\frac{1}{3}(f(6)-f(0))=\\frac{1}{3}(0-2)$\nB5. (D) $g^{\\prime}(x)=f(2 x) \\cdot 2$; thus $g^{\\prime}(1)=f(2) \\cdot 2$\nB6. (B) $\\int_0^6\\left(x^2-f(x)\\right) d x=\\int_0^6 x^2 d x-\\int_0^6 f(x) d x=\\left.\\frac{x^3}{3}\\right|_0 ^6-14$. (Why 14 ? See the Solution for Question B3.)\nB7. (C) This is the Mean Value Theorem for Integrals (page 242).\nB8. (D) This is theorem (2) from page 242. Prove by counterexamples that (A), (B), and (C) are false.\nB9. (A) This is a restatement of the Fundamental Theorem. In theorem (1) from page 242, interchange $t$ and $x$.\nB10. (C) Apply theorem (1) from page 242, noting that $$ F^{\\prime}(u)=\\frac{d}{d u} \\int_a^u f(x) d x=f(u) $$\nB11. (D) Let $y=\\int_{\\pi / 2}^{x^2} \\sqrt{\\sin t} d t$ and $u=x^2$; then $$ y=\\int_{\\pi / 2}^u \\sqrt{\\sin t} d t $$ By the Chain Rule, $\\frac{d y}{d x}=\\frac{d y}{d u} \\cdot \\frac{d u}{d x}=\\sqrt{\\sin u} \\cdot 2 x$, where theorem (1) from page 242 is used to find $\\frac{d y}{d u}$. Replace $u$ by $x^2$.\nB12. (D) Since $d x=-4 \\sin \\theta d \\theta$, you get the new integral $-48 \\int_{\\pi / 3}^0 \\sin ^2 \\theta \\cos \\theta d \\theta$. Use theorem (4) from page 242 to get the correct answer.\nB13. (D) $L(5)=9 \\cdot 5+11 \\cdot 7+7 \\cdot 8+3 \\cdot 4+1 \\cdot 6$\nB14. (B) The average value is $\\frac{1}{10-0} \\int_0^{10} x^2 d x=\\left.\\frac{1}{10} \\cdot \\frac{x^3}{3}\\right|_0 ^{10}=\\frac{100}{3}$. Solve $x^2=\\frac{100}{3}$.\nB15. (C) $\\left.\\frac{1}{5-0} \\int_0^5 f(x) d x=\\frac{1}{5}\\left(\\int_0^2 x^3 d x+\\int_2^5 4 x d x\\right)=\\frac{1}{5}\\left|\\frac{x^4}{4}\\right|_0^2+\\left.2 x^2\\right|_2 ^5 \\right\\rvert\\,=\\frac{1}{5}(4+42)$",
+    "table": {
+      "\\hline$x$": [
+        "\\hline$f(x)$"
+      ],
+      "0": [
+        "9"
+      ],
+      "5": [
+        "11"
+      ],
+      "12": [
+        "7"
+      ],
+      "20": [
+        "3"
+      ],
+      "24": [
+        "1"
+      ],
+      "30 \\\\": [
+        "2 \\\\"
+      ]
+    },
+    "graph": null,
+    "type": "mcq"
+  }
+]

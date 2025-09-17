@@ -1,0 +1,55 @@
+A1. (C) The integral is equal to $\left.\left(\frac{1}{3^2}-\frac{1}{2^2}-x\right)\right|_{-1} ^1=-\frac{7}{6}-\frac{1}{6}$
+A2. (B) Remite as $\int_1^2 \left\lvert\,\left(\left.1-\frac{1}{3} \frac{1}{x} \right\rvert\, d t\right.$ his equals \right.  $\left.\left|x-\frac{1}{3} \ln x\right|\right|_1 ^2=2-\frac{1}{3} \ln 2-1$
+A3. (D) Rewrite as  $-\int_0^3(4-i)^{-12}\left(-1(4)=-2 \sqrt{4-1} \int_0^1=-2(1-2)\right.$
+A4. (B) This integral equals $\frac{1}{3} \int_{-1}^0(3 u+4)^{1 / 2} \cdot 3 d u=\frac{1}{3},\left.\frac{2}{3}(3 u+4)^{3 a}\right|_{-1} ^0$ $=\frac{2}{9}\left(4^{1 / 2}-1^{1 / 2}\right)^{-1}$
+A5. (D) $\frac{1}{2} \int_2^3 \frac{2 d y}{2 y-3}=\left.\frac{1}{2} \ln (2 y-3)\right|_2 ^3=\frac{1}{2}(\ln 3-\ln 1)$
+A6. (A) Rewrite as  $\frac{1}{2} \int_0^{\sqrt{5}}\left(4-x^2\right)^{-1 / 2}(-2 x d x)=\left.\frac{1}{2} \cdot 2 \sqrt{4-x^3}\right|_0 ^{\sqrt{5}}=-(1-2)$
+A7. (C) $\frac{1}{2} \int_0^1(2 t-1)^3(2 \Delta t)=\left.\frac{1}{2} \cdot \frac{(2 t-1)^4}{4}\right|_0 ^1=\frac{1}{2}\left(\frac{(2 \cdot 1-1)^4}{4}-\frac{(2 \cdot 0-1)^4}{4}\right)$
+A8. (A) Divide: $\int_4^8\left(x^{-1 / 2}+\frac{1}{2} x^{1 / 2}\right) d x=\left.\left(2 x^{1 / 2}+\frac{1}{2} \cdot \frac{2}{3} x^{3 / 2}\right)\right|^3$, $=\left(2 \cdot 3+\frac{1}{3} \cdot 27\right)-\left(2 \cdot 2+\frac{1}{3} \cdot 8\right)$
+A9. (C) $\frac{1}{9} \int_{-3}^3 \frac{d x}{1+\frac{x^2}{3}}=3 \cdot \frac{1}{9} \int_{-3}^3 \frac{\frac{1}{3} d x}{1+\left(\frac{x^2}{3}\right)^2}=\left.\frac{1}{3} \tan ^{-1} \frac{x}{3}\right|_{-3} ^3=\frac{1}{3}\left(\frac{\pi}{4}-\left(-\frac{\pi}{4}\right)\right)$
+A10. (C) You get $-\left.e^{-s}\right|_0 ^1=-\left(e^{-1}-1\right)$.
+A11. (B) $\frac{1}{2} \int_0^1 e^{x^2}(2 x d x)=\left.\frac{1}{2} e^{e^3}\right|_0 ^1=\frac{1}{2}(e-1)$
+A12. (B) Evaluate $-\left.\frac{1}{2} \cos 2 \theta\right|_0 ^{1 / 4}$, which equals $-\frac{1}{2}(0-1)$.
+A13. (D) $-\int_1^a \frac{-d x}{3-z}=-\left.\ln (3-z)\right|_1 ^2=-(\ln 1-\ln 2)$
+A14. (C) II $x=2 \sin \theta, \sqrt{4-x^2}=2 \cos \theta, d x=2 \cos \theta d \theta$. When $x=1, \theta=\frac{\pi}{6}$; when $x=2, \theta=\frac{\pi}{2}$. The integral is equivalent to $\int_{N / 8}^{\pi / 2} \frac{(2 \cos \theta)(2 \cos \theta) d \theta}{2 \sin \theta}$.
+A15. (C) Braluate $-\int_0^\pi \cos ^2 \theta(-\sin \theta d \theta)$. This equals $-\left.\frac{1}{3} \cos ^3 \theta\right|_0 ^\pi=-\frac{1}{3}(-1-1)$.
+A16. (A) $\int_1^0(\ln x)\left(\frac{1}{x} d x\right)=\left.\frac{1}{2} \ln ^2 x\right|_1 ^1=\frac{1}{2}(1-0)$
+A17. (C) Use the Parts Formula with $u=x$ and $d v=e^x d x$. Then $d u=d x$ and $v=e^x$.
+The result is $\left.\left|x e^x-\int e^x d x\right|\right|_0 ^1=\left.\left(x e^x-e^x\right)\right|_0 ^1=(e-e)-(0-1)$.
+A18. (D) $\frac{1}{2} \int_0^{\pi / 6} \frac{2 \cos \theta d \theta}{1+2 \sin \theta}=\left.\frac{1}{2} \ln (1+2 \sin \theta)\right|_0 ^{\pi / 6}$ and get $\frac{1}{2}(\ln (1+1)-\ln 1)$
+A19. (A) $\frac{1}{2} \int_{\sqrt{2}}^2 \frac{2 u}{u^2-1} d u=\left.\frac{1}{2} \ln \left(u^2-1\right)\right|_{\sqrt{2}} ^2=\frac{1}{2}(\ln 3-\ln 1)$
+A20. (D) $\frac{1}{2} \int_{\sqrt{2}}^2\left(u^2-1\right)^{-2} \cdot 2 u d u=\left.\frac{1}{2\left(u^2-1\right)}\right|_{\sqrt{2}} ^2=-\frac{1}{2}\left(\frac{1}{3}-\frac{1}{1}\right)$
+A21. (B) $\frac{1}{2} \int_{\pi / 12}^{\pi / 4} \sin ^{-2} 2 x \cos 2 x(2 d x)=-\left.\frac{1}{2} \cdot \frac{1}{\sin 2 x}\right|_{\pi / 12} ^{\pi / 4}=-\frac{1}{2}\left(\frac{1}{1}-\frac{1}{1 / 2}\right)$
+A22. (A) $\int_0^1\left(1+e^x\right) d x=\left.\left(x+e^x\right)\right|_0 ^1=(1+e)-1$
+A23. (D) Evaluate $\left.\ln \left(e^x+1\right)\right|_0 ^1$, getting $\ln (e+1)-\ln 2$.
+A24. (C) Note that $d x=\sec ^2 \theta d \theta$ and that $\sqrt{1+\tan ^2 \theta}=\sec \theta$. Be sure to express the limits as values of $\theta: 1=\tan \theta$ yields $\theta=\frac{\pi}{4} ; \sqrt{3}=\tan \theta$ yields $\theta=\frac{\pi}{3}$.
+A25. (B) If $u=\sqrt{x+1}$, then $u^2=x+1$, and $2 u d u=d x$. When you substitute for the limits you get $2 \int_1^4 \frac{u d u}{u\left(u^2-1\right)}$. Since $u \neq 0$ on its interval of integration, you may divide the numerator and denominator by it.
+A26. (C) $\int_0^0 f^{\prime}(x) d x=f(0)-f(8)=11-7=4$
+A27. (C) On $[0,6]$ with $n=3, \Delta x=2$. Heights of rectangles at $x=1,3$, and 5 are 5 , 9, and 5, respectively; $M(3)=(5+9+5)(2)$.
+A28. (C) $\int_4^{10} f(x) d x \approx\left(\frac{2+6}{2}\right) \cdot 2+\left(\frac{6+5}{2}\right) \cdot 1+\left(\frac{5+8}{2}\right) \cdot 3 \approx 33$
+A29. (D) For $L(2)$ use the circumscribed rectangles: $1 \cdot 1+\frac{1}{2} \cdot 1=\frac{3}{2}$; for $R(2)$ use the inscribed rectangles: $\frac{1}{2} \cdot 1+\frac{1}{3} \cdot 1=\frac{5}{6}$
+A30. (D) On $[0,1] f(x)=\cos x$ is decreasing, so $L>A, R<A$, and $T>R$. Furthermore, $f$ is concave downward, so $T<A$.
+A31. (D) On the interval $[-1,3]$ the area under the graph of $y=|x|$ is the sum of the areas of two triangles: $\frac{1}{2}(1)(1)+\frac{1}{2}(3)(3)=5$.
+A32. (D) Note that the graph $y=|x+1|$ is the graph of $y=|x|$ translated one unit to the left. The area under the graph $y=|x+1|$ on the interval $[-3,2]$ is the sum of the areas of two triangles: $\frac{1}{2}(2)(2)+\frac{1}{2}(3)(3)=\frac{13}{2}$.
+A33. (C) Because $y=\sqrt{64-x^2}$ is a semicircle of radius 8 , its area is $\int_{-6}^3 \sqrt{64-x^2} d x= \frac{1}{2} \cdot \pi \cdot(8)^2=32 \pi$. The domain is $[-8,8]$, or 16 units wide. Hence the average height of the function is $\frac{1}{8-(-8)} \int_{-8}^8 \sqrt{64-x^2} d x=\frac{1}{16} \cdot 32 \pi=2 \pi$.
+A34. (B) The average value is equal to $\frac{1}{\pi / 2-\pi / 3} \int_{v / 3}^{\pi / 2} \cos x d x$.
+A35. (C) The average value is equal to $\frac{1}{\pi / 4-\pi / 6} \int_{v / 6}^{\pi / 4} \csc ^2 x \mathrm{~d} x$.
+A36. (C) From the integral, we get $a=1, b=5$, so $\Delta x=\frac{5-1}{n}=\frac{4}{n}$ and $x_k=a+k \cdot \Delta x=1+\frac{4 k}{n}= 1+\frac{4 k}{n}$. Replace $x$ with $x_k$ and replace $d x$ with $\Delta x$ in the integrand to get the general term in the summation.
+A37. (D) From the integral, we get $a=0, b=\pi$, so $\Delta x=\frac{\pi-0}{n}=\frac{\pi}{n}$ and $x_k=a+k \cdot \Delta x= 0+\frac{\pi k}{n}=\frac{\pi k}{n}$, Replace $x$ with $x_k$ and replace $d x$ with $\Delta x$ in the integrand to get the general term in the summation.
+A38. (B) From the Riemann Sum, we see $\Delta x=\frac{3}{n}$, then $k \cdot \Delta x=\frac{3 k}{n}$. Notice that the term involving $k$ in the Riemann Sum is not equal to $\frac{3 k}{n}$ but $2\left(\frac{3 k}{n}\right)$. Thus, we choose $x_k=\frac{3 k}{n}$, so $a=0$ and $\Delta x=\frac{b-0}{n}=\frac{3}{n}$, so $b=3$. Since $x_k$ replaces $x_1 f(x)=\sin (2 x+1)$ giving the integral $\int_0^3 \sin (2 x+1) d x$.
+A39. (A) The integral is of the form $\int u^3 d u ;$ evaluate $\left.\frac{1}{4} \sin ^4 \alpha\right|_{x / 4} ^{3 / 2}$
+B1. (D) The average value is $\frac{1}{5-0} \int_0^5 f(x) d x$. The integral represents the area of a trapezoid: $\frac{1}{2}(5+3) \cdot 10=40$. The average value is $\frac{1}{5}(40)$.
+B2. (B) Since $x^2+y^2=16$ is a circle, the given integral equals the area of a semicircle of radius 4.
+B3. (D) A vertical line at $x=2$ divides the area under $f$ into a trapezoid and a triangle; hence, $\int_0^5 f(x) d x=\frac{1}{2}(2+4)(2)+\frac{1}{2}(4)(4)=14$. Thus, the average value of $f$ on $[0,6]$ is $\frac{14}{6}=2 \frac{1}{3}$. There are points on $f$ with $y$-values of $2 \frac{1}{3}$ in the intervals $[0,2]$ and $[2,4]$.
+B4. (B) $\int_0^2 f(3 x) d x=\frac{1}{3} \int_0^2 f^{\prime}(3 x)(3 d x)=\left.\frac{1}{3} f(3 x)\right|_0 ^2=\frac{1}{3}(f(6)-f(0))=\frac{1}{3}(0-2)$
+B5. (D) $g^{\prime}(x)=f(2 x) \cdot 2$; thus $g^{\prime}(1)=f(2) \cdot 2$
+B6. (B) $\int_0^6\left(x^2-f(x)\right) d x=\int_0^6 x^2 d x-\int_0^6 f(x) d x=\left.\frac{x^3}{3}\right|_0 ^6-14$. (Why 14 ? See the Solution for Question B3.)
+B7. (C) This is the Mean Value Theorem for Integrals (page 242).
+B8. (D) This is theorem (2) from page 242. Prove by counterexamples that (A), (B), and (C) are false.
+B9. (A) This is a restatement of the Fundamental Theorem. In theorem (1) from page 242, interchange $t$ and $x$.
+B10. (C) Apply theorem (1) from page 242, noting that $$ F^{\prime}(u)=\frac{d}{d u} \int_a^u f(x) d x=f(u) $$
+B11. (D) Let $y=\int_{\pi / 2}^{x^2} \sqrt{\sin t} d t$ and $u=x^2$; then $$ y=\int_{\pi / 2}^u \sqrt{\sin t} d t $$ By the Chain Rule, $\frac{d y}{d x}=\frac{d y}{d u} \cdot \frac{d u}{d x}=\sqrt{\sin u} \cdot 2 x$, where theorem (1) from page 242 is used to find $\frac{d y}{d u}$. Replace $u$ by $x^2$.
+B12. (D) Since $d x=-4 \sin \theta d \theta$, you get the new integral $-48 \int_{\pi / 3}^0 \sin ^2 \theta \cos \theta d \theta$. Use theorem (4) from page 242 to get the correct answer.
+B13. (D) $L(5)=9 \cdot 5+11 \cdot 7+7 \cdot 8+3 \cdot 4+1 \cdot 6$
+B14. (B) The average value is $\frac{1}{10-0} \int_0^{10} x^2 d x=\left.\frac{1}{10} \cdot \frac{x^3}{3}\right|_0 ^{10}=\frac{100}{3}$. Solve $x^2=\frac{100}{3}$.
+B15. (C) $\left.\frac{1}{5-0} \int_0^5 f(x) d x=\frac{1}{5}\left(\int_0^2 x^3 d x+\int_2^5 4 x d x\right)=\frac{1}{5}\left|\frac{x^4}{4}\right|_0^2+\left.2 x^2\right|_2 ^5 \right\rvert\,=\frac{1}{5}(4+42)$

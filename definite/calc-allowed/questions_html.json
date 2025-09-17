@@ -1,0 +1,264 @@
+[
+  {
+    "id": "B1",
+    "text": "Find the average value of function $f$, as shown in the graph below, on the interval $[0,5]$.\n(",
+    "options": {
+      "A": "4",
+      "B": "5",
+      "C": "7",
+      "D": "8"
+    },
+    "answer": "D",
+    "solution": "The average value is $\\frac{1}{5-0} \\int_0^5 f(x) d x$. The integral represents the area of a trapezoid: $\\frac{1}{2}(5+3) \\cdot 10=40$. The average value is $\\frac{1}{5}(40)$.",
+    "notes": "The average value is $\\frac{1}{5-0} \\int_0^5 f(x) d x$. The integral represents the area of a trapezoid: $\\frac{1}{2}(5+3) \\cdot 10=40$. The average value is $\\frac{1}{5}(40)$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B2",
+    "text": "The integral $\\int_{-4}^4 \\sqrt{16-x^2} d x$ gives the area of\n(",
+    "options": {
+      "A": "a circle of radius 4",
+      "B": "a semicircle of radius 4",
+      "C": "a quadrant of a circle of radius 4",
+      "D": "half of an ellipse"
+    },
+    "answer": "B",
+    "solution": "Since $x^2+y^2=16$ is a circle, the given integral equals the area of a semicircle of radius 4.",
+    "notes": "Since $x^2+y^2=16$ is a circle, the given integral equals the area of a semicircle of radius 4.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B3",
+    "text": "Calculate the average value of $f(x)$ on the interval $[0,6]$. Which of the following intervals contains $x=c$, where $f(c)$ is the average value of $f$ on $[0,6]$ ?\nI. $[0,2]$\nII. $[2,4]$\nIII. $[4,6]$\n(",
+    "options": {
+      "A": "I only",
+      "B": "II only",
+      "C": "III only",
+      "D": "I and II only"
+    },
+    "answer": "D",
+    "solution": "A vertical line at $x=2$ divides the area under $f$ into a trapezoid and a triangle; hence, $\\int_0^5 f(x) d x=\\frac{1}{2}(2+4)(2)+\\frac{1}{2}(4)(4)=14$. Thus, the average value of $f$ on $[0,6]$ is $\\frac{14}{6}=2 \\frac{1}{3}$. There are points on $f$ with $y$-values of $2 \\frac{1}{3}$ in the intervals $[0,2]$ and $[2,4]$.",
+    "notes": "A vertical line at $x=2$ divides the area under $f$ into a trapezoid and a triangle; hence, $\\int_0^5 f(x) d x=\\frac{1}{2}(2+4)(2)+\\frac{1}{2}(4)(4)=14$. Thus, the average value of $f$ on $[0,6]$ is $\\frac{14}{6}=2 \\frac{1}{3}$. There are points on $f$ with $y$-values of $2 \\frac{1}{3}$ in the intervals $[0,2]$ and $[2,4]$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B4",
+    "text": "$\\int_0^2 f^{\\prime}(3 x) d x=$\n(",
+    "options": {
+      "A": "-2",
+      "B": "$-\\frac{2}{3}$",
+      "C": "$\\frac{2}{3}$",
+      "D": "2"
+    },
+    "answer": "B",
+    "solution": "$\\int_0^2 f(3 x) d x=\\frac{1}{3} \\int_0^2 f^{\\prime}(3 x)(3 d x)=\\left.\\frac{1}{3} f(3 x)\\right|_0 ^2=\\frac{1}{3}(f(6)-f(0))=\\frac{1}{3}(0-2)$",
+    "notes": "$\\int_0^2 f(3 x) d x=\\frac{1}{3} \\int_0^2 f^{\\prime}(3 x)(3 d x)=\\left.\\frac{1}{3} f(3 x)\\right|_0 ^2=\\frac{1}{3}(f(6)-f(0))=\\frac{1}{3}(0-2)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B5",
+    "text": "Let $g(x)=\\int_0^{2 x} f(t) d t$; then $g^{\\prime}(1)=$\n(",
+    "options": {
+      "A": "3",
+      "B": "4",
+      "C": "6",
+      "D": "8"
+    },
+    "answer": "D",
+    "solution": "$g^{\\prime}(x)=f(2 x) \\cdot 2$; thus $g^{\\prime}(1)=f(2) \\cdot 2$",
+    "notes": "$g^{\\prime}(x)=f(2 x) \\cdot 2$; thus $g^{\\prime}(1)=f(2) \\cdot 2$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B6",
+    "text": "Let $h(x)=x^2-f(x)$. Find $\\int_0^6 h(x) d x$.\n(",
+    "options": {
+      "A": "38",
+      "B": "58",
+      "C": "70",
+      "D": "74"
+    },
+    "answer": "B",
+    "solution": "$\\int_0^6\\left(x^2-f(x)\\right) d x=\\int_0^6 x^2 d x-\\int_0^6 f(x) d x=\\left.\\frac{x^3}{3}\\right|_0 ^6-14$. (Why 14 ? See the Solution for Question B3.)",
+    "notes": "$\\int_0^6\\left(x^2-f(x)\\right) d x=\\int_0^6 x^2 d x-\\int_0^6 f(x) d x=\\left.\\frac{x^3}{3}\\right|_0 ^6-14$. (Why 14 ? See the Solution for Question B3.)",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B7",
+    "text": "If $f(x)$ is continuous on the closed interval $[a, b]$, then there exists at least one number $c, a&lt;c&lt;b$, such that $\\int_a^b f(x) d x$ is equal to\n(",
+    "options": {
+      "A": "$\\frac{f(c)}{b-a}$",
+      "B": "$f^{\\prime}(c)(b-a)$",
+      "C": "$f(c)(b-a)$",
+      "D": "$\\frac{f^{\\prime}(c)}{b-a}$"
+    },
+    "answer": "C",
+    "solution": "This is the Mean Value Theorem for Integrals (page 242).",
+    "notes": "This is the Mean Value Theorem for Integrals (page 242).",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B8",
+    "text": "If $f(x)$ is continuous on the closed interval $[a, b]$ and $k$ is a constant, then $\\int_a^b k f(x) d x$ is equal to\n(",
+    "options": {
+      "A": "$k(b-a)$",
+      "B": "$k[f(b)-f(a)]$",
+      "C": "$\\left.\\frac{|k f(x)|^2}{2}\\right|_a ^b$",
+      "D": "$k \\int_a^b f(x) d x$"
+    },
+    "answer": "D",
+    "solution": "This is theorem (2) from page 242. Prove by counterexamples that (A), (B), and (C) are false.",
+    "notes": "This is theorem (2) from page 242. Prove by counterexamples that (A), (B), and (C) are false.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B9",
+    "text": "$\\frac{d}{d t} \\int_0^t \\sqrt{x^3+1} d x=$\n(",
+    "options": {
+      "A": "$\\sqrt{t^3+1}$",
+      "B": "$\\frac{\\sqrt{t^3+1}}{3 t^2}$",
+      "C": "$3 x^2 \\sqrt{x^3+1}$",
+      "D": "$\\sqrt{t^3+1}-1$"
+    },
+    "answer": "A",
+    "solution": "This is a restatement of the Fundamental Theorem. In theorem (1) from page 242, interchange $t$ and $x$.",
+    "notes": "This is a restatement of the Fundamental Theorem. In theorem (1) from page 242, interchange $t$ and $x$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B10",
+    "text": "If $F(u)=\\int_1^{3 u}\\left(2-x^2\\right)^3 d x$, then $F^{\\prime}(u)$ is equal to\n(",
+    "options": {
+      "A": "$-6 u\\left(2-u^2\\right)^2$",
+      "B": "$\\left(2-u^2\\right)^3-1$",
+      "C": "$\\left(2-u^2\\right)^3$",
+      "D": "$-2 u\\left(2-u^2\\right)^3$"
+    },
+    "answer": "C",
+    "solution": "Apply theorem (1) from page 242, noting that $$ F^{\\prime}(u)=\\frac{d}{d u} \\int_a^u f(x) d x=f(u) $$",
+    "notes": "Apply theorem (1) from page 242, noting that $$ F^{\\prime}(u)=\\frac{d}{d u} \\int_a^u f(x) d x=f(u) $$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B11",
+    "text": "$\\frac{d}{d x} \\int_{\\tau / 2}^{x^2} \\sqrt{\\sin t} d t=$\n(",
+    "options": {
+      "A": "$\\sqrt{\\sin t^2}$",
+      "B": "$2 x \\sqrt{\\sin x^2}-1$",
+      "C": "$\\sqrt{\\sin x^2-1}$",
+      "D": "$2 x \\sqrt{\\sin x^2}$"
+    },
+    "answer": "D",
+    "solution": "Let $y=\\int_{\\pi / 2}^{x^2} \\sqrt{\\sin t} d t$ and $u=x^2$; then $$ y=\\int_{\\pi / 2}^u \\sqrt{\\sin t} d t $$ By the Chain Rule, $\\frac{d y}{d x}=\\frac{d y}{d u} \\cdot \\frac{d u}{d x}=\\sqrt{\\sin u} \\cdot 2 x$, where theorem (1) from page 242 is used to find $\\frac{d y}{d u}$. Replace $u$ by $x^2$.",
+    "notes": "Let $y=\\int_{\\pi / 2}^{x^2} \\sqrt{\\sin t} d t$ and $u=x^2$; then $$ y=\\int_{\\pi / 2}^u \\sqrt{\\sin t} d t $$ By the Chain Rule, $\\frac{d y}{d x}=\\frac{d y}{d u} \\cdot \\frac{d u}{d x}=\\sqrt{\\sin u} \\cdot 2 x$, where theorem (1) from page 242 is used to find $\\frac{d y}{d u}$. Replace $u$ by $x^2$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B12",
+    "text": "If $x=4 \\cos \\theta$ and $y=3 \\sin \\theta$, then $\\int_2^4 x y d x$ is equivalent to\n(",
+    "options": {
+      "A": "$48 \\int_{\\pi / 3}^0 \\sin \\theta \\cos ^2 \\theta d \\theta$",
+      "B": "$48 \\int_2^4 \\sin ^2 \\theta \\cos \\theta d \\theta$",
+      "C": "$48 \\int_0^{\\pi / 3} \\sin \\theta \\cos ^2 \\theta d \\theta$",
+      "D": "$48 \\int_0^{\\pi / 3} \\sin ^2 \\theta \\cos \\theta d \\theta$"
+    },
+    "answer": "D",
+    "solution": "Since $d x=-4 \\sin \\theta d \\theta$, you get the new integral $-48 \\int_{\\pi / 3}^0 \\sin ^2 \\theta \\cos \\theta d \\theta$. Use theorem (4) from page 242 to get the correct answer.",
+    "notes": "Since $d x=-4 \\sin \\theta d \\theta$, you get the new integral $-48 \\int_{\\pi / 3}^0 \\sin ^2 \\theta \\cos \\theta d \\theta$. Use theorem (4) from page 242 to get the correct answer.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B13",
+    "text": "",
+    "options": {
+      "A": "144",
+      "B": "170",
+      "C": "186",
+      "D": "196"
+    },
+    "answer": "D",
+    "solution": "$L(5)=9 \\cdot 5+11 \\cdot 7+7 \\cdot 8+3 \\cdot 4+1 \\cdot 6$",
+    "notes": "$L(5)=9 \\cdot 5+11 \\cdot 7+7 \\cdot 8+3 \\cdot 4+1 \\cdot 6$",
+    "table": {
+      "\\hline$x$": [
+        "\\hline$f(x)$"
+      ],
+      "0": [
+        "9"
+      ],
+      "5": [
+        "11"
+      ],
+      "12": [
+        "7"
+      ],
+      "20": [
+        "3"
+      ],
+      "24": [
+        "1"
+      ],
+      "30 \\\\": [
+        "2 \\\\"
+      ]
+    },
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B14",
+    "text": "Find the value of $x$ at which the function $y=x^2$ reaches its average value on the interval $[0,10]$.\n(",
+    "options": {
+      "A": "5.313",
+      "B": "5.774",
+      "C": "6.083",
+      "D": "18.257"
+    },
+    "answer": "B",
+    "solution": "The average value is $\\frac{1}{10-0} \\int_0^{10} x^2 d x=\\left.\\frac{1}{10} \\cdot \\frac{x^3}{3}\\right|_0 ^{10}=\\frac{100}{3}$. Solve $x^2=\\frac{100}{3}$.",
+    "notes": "The average value is $\\frac{1}{10-0} \\int_0^{10} x^2 d x=\\left.\\frac{1}{10} \\cdot \\frac{x^3}{3}\\right|_0 ^{10}=\\frac{100}{3}$. Solve $x^2=\\frac{100}{3}$.",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  },
+  {
+    "id": "B15",
+    "text": "The average value of $f(x)=\\left\\{\\begin{array}{ll}x^3 &amp; x&lt;2 \\\\ 4 x &amp; x \\geq 2\\end{array}\\right.$ on the interval $0 \\leq x \\leq 5$ is\n(",
+    "options": {
+      "A": "6.25",
+      "B": "6.41",
+      "C": "9.2",
+      "D": "10"
+    },
+    "answer": "C",
+    "solution": "$\\left.\\frac{1}{5-0} \\int_0^5 f(x) d x=\\frac{1}{5}\\left(\\int_0^2 x^3 d x+\\int_2^5 4 x d x\\right)=\\frac{1}{5}\\left|\\frac{x^4}{4}\\right|_0^2+\\left.2 x^2\\right|_2 ^5 \\right\\rvert\\,=\\frac{1}{5}(4+42)$",
+    "notes": "$\\left.\\frac{1}{5-0} \\int_0^5 f(x) d x=\\frac{1}{5}\\left(\\int_0^2 x^3 d x+\\int_2^5 4 x d x\\right)=\\frac{1}{5}\\left|\\frac{x^4}{4}\\right|_0^2+\\left.2 x^2\\right|_2 ^5 \\right\\rvert\\,=\\frac{1}{5}(4+42)$",
+    "table": null,
+    "graph": null,
+    "type": "mcq"
+  }
+]
