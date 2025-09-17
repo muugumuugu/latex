@@ -1,87 +1,78 @@
 // loadQuestions.js
-// Loads a JSON file and populates the spreadsheet engine.
-// Expects JSON array of objects: [{ id: "...", text: "...", options: {...}, answer: "A", solution: "..." }, ...]
-
 (function(){
   const fileInput = document.getElementById('jsonFileInput');
+  const loadDefaultsBtn = document.getElementById('btnLoadDefaults');
 
-  // helper to create columns from keys (keeps LaTeX keys as latex pair)
   function createColumnsFromSample(sample){
-    // clear any previous columns/state
-    columnTypes.length = 0;
+    // clear engine state
+    // (we rely on engine's global arrays; easiest is to reset them and re-add)
+    // This file assumes window.ss exposes addColumn, addRow, renderTable and the arrays are global
+    // We'll just overwrite columnTypes and numRows by calling methods available
+    // For safety, we rebuild: set engine columnTypes directly
+    // BUT to avoid breaking encapsulation, we will call engine methods: remove all columns/rows then add
+    // Reset: brute force by setting numRows/numCols via engine internal globals (they are global in spreadsheet.js)
+    // Simpler: call window.ss to reset by reloading the table via direct manipulation:
+    // (Here we assume columnTypes and numRows are globals in spreadsheet.js — they are.)
+    window.columnTypes.length = 0;
+    window.numRows = 0;
+    window.numCols = 0;
+
     for(const k in sample){
-      // treat specific keys as latex content
-      if(k === 'text' || k === 'solution' || k === 'notes'){
-        addColumn('latex', k);
-      } else {
-        addColumn('text', k);
-      }
+      if(k === 'text' || k === 'solution' || k === 'notes') window.ss.addColumn('latex', k);
+      else window.ss.addColumn('text', k);
     }
   }
 
-  // Fill worksheet from data array
   function populateFromArray(arr){
-    // reset rows
-    numRows = 0;
-    // build columns
+    if(!arr || !arr.length) return;
     createColumnsFromSample(arr[0]);
-    // add rows and fill values
-    arr.forEach(item => {
-      addRow();
-      const r = numRows - 1;
+    arr.forEach(item=>{
+      window.ss.addRow();
+      const r = window.numRows - 1;
       let c = 0;
       for(const key in item){
-        const spec = columnTypes[c];
-        const id = spec.isPair ? cellId(c, r, '_in') : cellId(c, r, '');
+        const spec = window.columnTypes[c];
+        const id = spec.isPair ? cellId(c,r,'_in') : cellId(c,r,'');
         const raw = (item[key] === null || item[key] === undefined) ? '' : String(item[key]);
-        if(cellMap[id]){
-          cellMap[id].element.value = raw;
-          cellMap[id].value = raw;
-          if(cellMap[id].render){
-            try{
-              cellMap[id].render.innerHTML = texme.render(raw);
-              if(window.MathJax && window.MathJax.Hub){
-                window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub, cellMap[id].render]);
-              }
-            } catch(e){
-              cellMap[id].render.innerHTML = '<span style="color:red">render error</span>';
-            }
-            // ensure display state: preview visible, input hidden
-            cellMap[id].element.style.display = 'none';
-            cellMap[id].render.style.display = 'block';
+        if(window.cellMap[id]){
+          window.cellMap[id].element.value = raw;
+          window.cellMap[id].value = raw;
+          if(window.cellMap[id].render){
+            try{ window.cellMap[id].render.innerHTML = texme.render(raw); }catch(e){ window.cellMap[id].render.innerHTML = '<span style="color:red">render error</span>'; }
           }
         }
         c++;
       }
     });
+    // final renderTable call to ensure UI updated
+    window.renderTable && window.renderTable();
+    window.ui_updateSelectors && window.ui_updateSelectors();
+    window.applyConditionalFormatting && window.applyConditionalFormatting();
   }
 
-  // When a JSON file is selected via input, parse and load
-  fileInput.addEventListener('change', function(evt){
-    const f = evt.target.files[0];
+  // file input -> read local JSON and load
+  fileInput.addEventListener('change', (e)=>{
+    const f = e.target.files[0];
     if(!f) return;
-    const reader = new FileReader();
-    reader.onload = function(e){
+    const r = new FileReader();
+    r.onload = function(ev){
       try{
-        const arr = JSON.parse(e.target.result);
-        if(!Array.isArray(arr) || arr.length === 0) { alert('JSON must be an array with at least one object'); return; }
+        const arr = JSON.parse(ev.target.result);
+        if(!Array.isArray(arr)) return alert('JSON must be an array of objects');
         populateFromArray(arr);
-      }catch(err){
-        alert('Error parsing JSON: ' + err.message);
-      }
+      }catch(err){ alert('Error parsing JSON: ' + err.message); }
     };
-    reader.readAsText(f, 'utf-8');
+    r.readAsText(f,'utf-8');
   });
 
-  // Optional: auto-load default file at startup if present on server
-  async function tryAutoLoad(){
+  // auto-load default file if available on server
+  loadDefaultsBtn.addEventListener('click', async ()=>{
     try{
       const resp = await fetch('questions_latex.json');
-      if(!resp.ok) return;
+      if(!resp.ok) return alert('Default JSON not found at questions_latex.json');
       const arr = await resp.json();
-      if(Array.isArray(arr) && arr.length) populateFromArray(arr);
-    }catch(e){ /* ignore */ }
-  }
-  tryAutoLoad();
+      populateFromArray(arr);
+    }catch(err){ alert('Could not load default JSON: '+err.message); }
+  });
 
 })();
