@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Fixed Spreadsheet — LaTeX Pairs + Preview</title>
+<script src="texme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
+<style>
+  :root{
+    --in-bg: #e8f5ff;
+    --out-bg: #f1fff1;
+    --header-bg: #ddd;
+    --corner-bg: #ccc;
+    --cell-w: 120px;
+  }
+  body { font-family: system-ui, Arial; margin: 12px; display:flex; gap:20px; }
+  .panel { display:flex; flex-direction:column; gap:8px; }
+  .container { overflow:auto; max-height:70vh; border:1px solid #bbb; }
+  table.sheet { border-collapse:collapse; width: max-content; min-width: 100%; }
+  table.sheet th, table.sheet td { border:1px solid #ccc; padding:6px; min-width: var(--cell-w); vertical-align:top; box-sizing:border-box; }
+  table.sheet th { background:var(--header-bg); font-weight:700; text-align:center; position:sticky; top:0; z-index:10; }
+  table.sheet th.corner { left:0; top:0; position:sticky; z-index:12; background:var(--corner-bg); }
+  table.sheet td.rowHeader { position:sticky; left:0; background:var(--header-bg); z-index:9; font-weight:600; text-align:center; }
+  .input-cell { width:100%; min-height:36px; box-sizing:border-box; border:1px solid #bbb; background:var(--in-bg); resize:vertical; padding:4px; }
+  .render-cell { background:var(--out-bg); min-height:36px; padding:6px; overflow:auto; }
+  .controls { display:flex; gap:6px; flex-wrap:wrap; }
+  button { padding:6px 8px; cursor:pointer; }
+  .small { font-size:12px; padding:4px 6px; }
+</style>
+</head>
+<body>
+
+<div class="panel" style="width:760px">
+  <h3>Spreadsheet (LaTeX pairs — In / Out)</h3>
+  <div class="controls">
+    <button id="addColLatex">Add LaTeX Pair</button>
+    <button id="addColText">Add Text Column</button>
+    <button id="addColFormula">Add Formula Column</button>
+    <button id="addRow">Add Row</button>
+    <button id="exportCSV" class="small">Export CSV</button>
+  </div>
+
+  <div class="container">
+    <div id="gridWrapper"></div>
+  </div>
+  <div style="margin-top:8px;color:#444;font-size:13px">
+    Click a <b>_in</b> textarea to copy raw LaTeX source. Click the corresponding <b>_out</b> preview to copy the rendered HTML.
+  </div>
+</div>
+
+<script>
+/* --------- Spreadsheet core (rebuilt as a table) ---------- */
+
+(function(){
+  const wrapper = document.getElementById('gridWrapper');
+
+  // state
+  const columnTypes = []; // each item: { type: 'latex'|'text'|'formula', isPair: boolean }
+  const cellMap = {};     // id -> { type, element, render?, value }
+  let numRows = 0;
+  let numCols = 0;        // logical columns count (latex counts as 1 logical col but will render as 2 table cols)
+
+  // helpers
+  function colName(n){ let s=''; while(n>=0){ s=String.fromCharCode(65 + (n%26)) + s; n = Math.floor(n/26) - 1; } return s; }
+  function rowName(r){ return (r+1).toString(); }
+  function cellId(c,r,suffix=''){ return colName(c) + rowName(r) + (suffix||''); }
+
+  // table renderer (rebuilds entire table)
+  function renderTable(){
+    // preserve values in old cellMap (we already store them in cellMap by id)
+    wrapper.innerHTML = '';
+    const table = document.createElement('table');
+    table.className = 'sheet';
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+
+    // corner cell
+    const corner = document.createElement('th');
+    corner.className = 'corner';
+    corner.textContent = '';
+    headRow.appendChild(corner);
+
+    // column headers: for each logical column, produce either 2 headers (latex pair) or 1 header
+    for(let c=0;c<numCols;c++){
+      const spec = columnTypes[c];
+      if(spec.isPair){ // latex column -> produce two headers: In / Out
+        const thIn = document.createElement('th'); thIn.textContent = colName(c) + ' (In)'; headRow.appendChild(thIn);
+        const thOut = document.createElement('th'); thOut.textContent = colName(c) + ' (Out)'; headRow.appendChild(thOut);
+      } else {
+        const th = document.createElement('th'); th.textContent = colName(c); headRow.appendChild(th);
+      }
+    }
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    // body
+    const tbody = document.createElement('tbody');
+
+    for(let r=0;r<numRows;r++){
+      const tr = document.createElement('tr');
+      // row header
+      const thRow = document.createElement('th');
+      thRow.className = 'rowHeader';
+      thRow.textContent = rowName(r);
+      tr.appendChild(thRow);
+
+      // columns' cells
+      for(let c=0;c<numCols;c++){
+        const spec = columnTypes[c];
+        if(spec.isPair){
+          // input cell TD
+          const tdIn = document.createElement('td');
+          const ta = document.createElement('textarea');
+          const idIn = cellId(c,r,'_in');
+          ta.id = idIn;
+          ta.className = 'input-cell';
+          ta.value = cellMap[idIn]?.value || '';
+          tdIn.appendChild(ta);
+          tr.appendChild(tdIn);
+
+          // output render cell TD
+          const tdOut = document.createElement('td');
+          const divOut = document.createElement('div');
+          const idOut = cellId(c,r,'_out');
+          divOut.id = idOut;
+          divOut.className = 'render-cell';
+          tdOut.appendChild(divOut);
+          tr.appendChild(tdOut);
+
+          // update cellMap entries (replace element refs)
+          cellMap[idIn] = cellMap[idIn] || { type:'latex', value: ta.value };
+          cellMap[idIn].element = ta;
+          cellMap[idIn].render = divOut;
+          cellMap[idIn].type = 'latex';
+        } else {
+          // single cell column
+          const td = document.createElement('td');
+          const ta = document.createElement('textarea');
+          const id = cellId(c,r,'');
+          ta.id = id;
+          ta.className = 'input-cell';
+          ta.value = cellMap[id]?.value || '';
+          td.appendChild(ta);
+          tr.appendChild(td);
+
+          cellMap[id] = cellMap[id] || { type: spec.type === 'formula' ? 'formula' : 'text', value: ta.value };
+          cellMap[id].element = ta;
+          cellMap[id].type = cellMap[id].type || (spec.type === 'formula' ? 'formula' : 'text');
+        }
+      }
+      tbody.appendChild(tr);
+    }
+
+    table.appendChild(tbody);
+    wrapper.appendChild(table);
+
+    // wire handlers (after DOM inserted)
+    wireAllHandlers();
+    // initial render of latex previews
+    for(const key in cellMap){
+      if(cellMap[key].type === 'latex'){
+        const obj = cellMap[key];
+        // if a saved value exists, render it now
+        renderLatexPreview(obj.element, obj.render, key);
+      }
+    }
+  }
+
+  // ---------- latex rendering logic (adapted but simpler than wrapper approach) ----------
+  function attachLatexHandlers(input, preview, id){
+    let timeout = null;
+    function renderNow(){
+      const code = (input.value || '').trim();
+      // render using texme
+      try{
+        preview.innerHTML = texme.render(code);
+      } catch(e){
+        preview.innerHTML = '<span style="color:red">render error</span>';
+      }
+      // ask MathJax to typeset the preview
+      if(window.MathJax && window.MathJax.Hub){
+        window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub, preview]);
+      }
+      cellMap[id].value = code;
+    }
+    function schedule(){
+      if(timeout) clearTimeout(timeout);
+      timeout = setTimeout(renderNow, 100);
+    }
+    input.addEventListener('input', schedule);
+    // also copy raw on click (minimal feedback)
+    input.addEventListener('click', (e)=>{
+      const text = input.value || '';
+      if(navigator.clipboard) navigator.clipboard.writeText(text).catch(()=>{});
+      input.style.outline = '2px solid blue';
+      setTimeout(()=> input.style.outline = '', 300);
+    });
+    preview.addEventListener('click', ()=> {
+      const html = preview.innerHTML || '';
+      if(navigator.clipboard) navigator.clipboard.writeText(html).catch(()=>{});
+      preview.style.outline = '2px solid green';
+      setTimeout(()=> preview.style.outline = '', 300);
+    });
+    // render first time
+    renderNow();
+  }
+
+  function renderLatexPreview(input, preview, id){ attachLatexHandlers(input, preview, id); }
+
+  // ---------- formula eval (basic numeric) ----------
+  function evalFormula(formula){
+    if(!formula || typeof formula !== 'string') return formula;
+    formula = formula.trim();
+    if(!formula.startsWith('=')) return formula;
+    let expr = formula.slice(1).replace(/([A-Z]+[0-9]+(_in|_out)?)/g, (m)=>{
+      const mm = m;
+      const v = cellMap[mm]?.value ?? cellMap[m.replace(/(_in|_out)$/,'')]?.value ?? 0;
+      // if numeric-like return numeric else 0
+      return (isFinite(v) && v !== '' )? v : 0;
+    });
+    try{ // simple eval (user code)
+      // eslint-disable-next-line no-eval
+      const res = eval(expr);
+      return (res === undefined || res === null) ? '' : res;
+    } catch(e){ return '#ERR'; }
+  }
+
+  function recalcAll(){
+    for(const id in cellMap){
+      const c = cellMap[id];
+      if(c.type === 'formula' && c.element){
+        const out = evalFormula(c.element.value);
+        c.value = out;
+      } else if(c.type === 'text' && c.element){
+        c.value = c.element.value;
+      } // latex values are maintained by attachLatexHandlers
+    }
+  }
+
+  // wire handlers for non-latex cells and attach latex ones
+  function wireAllHandlers(){
+    // iterate through current cellMap keys and attach relevant handlers
+    for(const id in cellMap){
+      const c = cellMap[id];
+      if(!c) continue;
+      if(c.type === 'latex' && c.element && c.render){
+        // ensure handlers attached exactly once
+        // remove previous listeners by cloning if necessary (keep simple: attach and rely on single build)
+        attachLatexHandlers(c.element, c.render, id);
+      } else if((c.type === 'text' || c.type === 'formula') && c.element){
+        // basic input handler
+        c.element.oninput = function(){
+          if(c.type === 'formula') {
+            c.value = evalFormula(c.element.value);
+          } else {
+            c.value = c.element.value;
+          }
+          recalcAll();
+        };
+        // clicking text copies plain text
+        c.element.onclick = function(){
+          if(navigator.clipboard) navigator.clipboard.writeText(c.element.value).catch(()=>{});
+          c.element.style.outline = '2px solid blue';
+          setTimeout(()=> c.element.style.outline = '', 250);
+        };
+      }
+    }
+    recalcAll();
+  }
+
+  // ---------- public operations ----------
+  function addColumn(type){
+    if(!['latex','text','formula'].includes(type)) return;
+    columnTypes.push({ type, isPair: type === 'latex' });
+    numCols++;
+    renderTable();
+  }
+  function addRow(){
+    numRows++;
+    renderTable();
+  }
+  function exportCSV(){
+    // produce CSV from logical columns (latex uses _in value)
+    const rows = [];
+    for(let r=0;r<numRows;r++){
+      const cells = [];
+      for(let c=0;c<numCols;c++){
+        const spec = columnTypes[c];
+        if(spec.isPair){
+          const idIn = cellId(c,r,'_in');
+          cells.push( '"' + (cellMap[idIn]?.value ?? '') .replace(/"/g,'""') + '"' );
+        } else {
+          const id = cellId(c,r,'');
+          cells.push( '"' + (cellMap[id]?.value ?? '') .replace(/"/g,'""') + '"' );
+        }
+      }
+      rows.push(cells.join(','));
+    }
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'sheet.csv'; link.click();
+  }
+
+  // ---------- initial UI wiring ----------
+  document.getElementById('addColLatex').addEventListener('click', ()=> addColumn('latex'));
+  document.getElementById('addColText').addEventListener('click', ()=> addColumn('text'));
+  document.getElementById('addColFormula').addEventListener('click', ()=> addColumn('formula'));
+  document.getElementById('addRow').addEventListener('click', addRow);
+  document.getElementById('exportCSV').addEventListener('click', exportCSV);
+
+  // ---------- initialize with one latex pair and one row ----------
+  (function init(){
+    addColumn('latex'); // adds a logical column (will show In+Out)
+    addRow();
+  })();
+
+})();
+</script>
+
+</body>
+</html>
