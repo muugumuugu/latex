@@ -1,0 +1,19 @@
+.spreadsheet {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.spreadsheet th, .spreadsheet td {
+  border: 1px solid #ccc;
+  padding: 4px;
+}
+
+.spreadsheet textarea {
+  width: 100%;
+  height: 2em;
+  resize: none;
+}
+
+.latex-output {
+  min-height: 2em;
+}

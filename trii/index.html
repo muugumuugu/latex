@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LaTeX Spreadsheet</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- MathJax (for LaTeX rendering) -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <h1>📊 LaTeX Spreadsheet</h1>
+  
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <button onclick="Spreadsheet.addRow()">➕ Row</button>
+    <button onclick="Spreadsheet.addColumn()">➕ Column</button>
+    <button onclick="UI.showSidebar()">🎨 Conditional Formatting</button>
+    <button onclick="Export.exportCSV('latex')">⬇️ CSV (LaTeX)</button>
+    <button onclick="Export.exportCSV('html')">⬇️ CSV (HTML)</button>
+    <button onclick="Export.exportJSON('latex')">⬇️ JSON (LaTeX)</button>
+    <button onclick="Export.exportJSON('html')">⬇️ JSON (HTML)</button>
+  </div>
+
+  <!-- Spreadsheet -->
+  <table id="spreadsheet"></table>
+
+  <!-- Sidebar (hidden by default) -->
+  <div id="sidebar" class="hidden"></div>
+
+  <!-- Scripts -->
+  <script src="spreadsheet.js"></script>
+  <script src="ui.js"></script>
+  <script src="export.js"></script>
+  <script src="loadQuestions.js"></script>
+</body>
+</html>
