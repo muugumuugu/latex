@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Advanced LaTeX Spreadsheet — Full</title>
+
+<!-- texme.js must be available in same folder -->
+<script src="texme.js"></script>
+<!-- MathJax optional -->
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
+
+<style>
+:root{
+  --in-bg:#e8f5ff; --out-bg:#f1fff1; --header-bg:#eee; --corner-bg:#ddd; --cell-w:140px;
+}
+body{font-family:system-ui,Arial;margin:12px;display:flex;gap:12px;}
+.left { flex:1; display:flex; flex-direction:column; gap:10px; }
+.container { overflow:auto; max-height:76vh; border:1px solid #bbb; background:white;}
+table.sheet { border-collapse:collapse; width:max-content; min-width:100%; }
+table.sheet th, table.sheet td { border:1px solid #ccc; padding:6px; min-width:var(--cell-w); box-sizing:border-box; vertical-align:top; }
+table.sheet th { background:var(--header-bg); font-weight:700; text-align:center; position:sticky; top:0; z-index:10; }
+th.corner { left:0; top:0; position:sticky; z-index:12; background:var(--corner-bg); }
+th.rowHeader { position:sticky; left:0; background:var(--header-bg); z-index:9; font-weight:600; text-align:center;}
+.input-cell { width:100%; min-height:36px; box-sizing:border-box; border:1px solid #bbb; background:var(--in-bg); resize:vertical; padding:4px; display:block; }
+.render-cell { background:var(--out-bg); min-height:36px; padding:6px; overflow:auto; display:block; cursor:pointer; }
+.controls { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+button { padding:6px 8px; cursor:pointer; }
+.small { font-size:12px; padding:4px 6px; }
+.sidebar { width:320px; border-left:1px solid #ccc; padding:8px; box-sizing:border-box; background:#fafafa; }
+.ruleItem { display:flex; gap:6px; align-items:center; margin-bottom:6px; }
+.colorBox { width:18px; height:18px; border:1px solid #888; display:inline-block; }
+.header-edit { width:120px; }
+.action-btn { font-size:12px; padding:4px; }
+.note { color:#555; font-size:13px; margin-top:6px; }
+.small-input { width:64px; }
+hr { border:0; border-top:1px solid #eee; margin:8px 0; }
+</style>
+</head>
+<body>
+
+<div class="left">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h2 style="margin:0">Advanced LaTeX Spreadsheet</h2>
+    <div>
+      <input id="jsonFileInput" type="file" accept=".json" />
+      <button id="btnLoadDefaults" class="small">Load defaults</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="addColLatex">Add LaTeX</button>
+    <button id="addColText">Add Text</button>
+    <button id="addColFormula">Add Formula</button>
+    <button id="addRow">Add Row</button>
+
+    <div style="margin-left:12px"></div>
+
+    <button id="copyRowBtn" class="small">Copy Row</button>
+    <button id="pasteRowBtn" class="small">Paste Row</button>
+    <button id="copyColBtn" class="small">Copy Col</button>
+    <button id="pasteColBtn" class="small">Paste Col</button>
+
+    <div style="margin-left:12px"></div>
+
+    <button id="exportCSVLatex" class="small">CSV (LaTeX)</button>
+    <button id="exportCSVHTML" class="small">CSV (HTML)</button>
+    <button id="exportJSONLatex" class="small">JSON (LaTeX)</button>
+    <button id="exportJSONHTML" class="small">JSON (HTML)</button>
+  </div>
+
+  <div class="container">
+    <div id="gridWrapper"></div>
+  </div>
+
+  <div class="note">Click a LaTeX preview to edit; blur to return to preview. Double-click preview to copy rendered HTML; single-click textarea copies raw LaTeX.</div>
+</div>
+
+<div class="sidebar" id="sidebar">
+  <h3 style="margin:6px 0">Conditional Formatting</h3>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <select id="cfColSelect"></select>
+    <select id="cfOpSelect"><option value=">"> &gt; </option><option value="<">&lt;</option><option value="=">=</option></select>
+    <input id="cfValue" class="small-input" placeholder="value" />
+    <input id="cfColor" type="color" value="#fffb91" />
+    <button id="addRuleBtn" class="action-btn">Add Rule</button>
+  </div>
+  <div id="ruleList" style="margin-top:8px"></div>
+
+  <hr/>
+
+  <h4 style="margin:6px 0">Edit / Delete Columns</h4>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <select id="colSelect"></select>
+    <input id="colHeaderInput" class="header-edit" placeholder="Header" />
+    <button id="renameColBtn" class="action-btn">Rename</button>
+    <button id="delColBtn" class="action-btn">Delete</button>
+  </div>
+
+  <h4 style="margin:8px 0 6px">Edit / Delete Rows</h4>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <select id="rowSelect"></select>
+    <button id="delRowBtn" class="action-btn">Delete Row</button>
+  </div>
+
+  <hr/>
+
+  <h4 style="margin:6px 0">Paste Buffer</h4>
+  <div id="bufferInfo">Empty</div>
+</div>
+
+<!-- scripts -->
+<script src="spreadsheet.js"></script>
+<script src="ui.js"></script>
+<script src="export.js"></script>
+<script src="loadQuestions.js"></script>
+
+</body>
+</html>
