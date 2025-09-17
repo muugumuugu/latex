@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Advanced LaTeX Spreadsheet</title>
+<script src="texme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
+<style>
+:root{
+  --in-bg:#e8f5ff;
+  --out-bg:#f1fff1;
+  --header-bg:#ddd;
+  --corner-bg:#ccc;
+  --cell-w:140px;
+}
+body{font-family:system-ui,Arial;margin:12px;display:flex;gap:20px;}
+.panel{display:flex;flex-direction:column;gap:8px;}
+.container{overflow:auto;max-height:70vh;border:1px solid #bbb;}
+table.sheet{border-collapse:collapse;width:max-content;min-width:100%;}
+table.sheet th, table.sheet td{border:1px solid #ccc;padding:6px;min-width:var(--cell-w);vertical-align:top;box-sizing:border-box;}
+table.sheet th{background:var(--header-bg);font-weight:700;text-align:center;position:sticky;top:0;z-index:10;}
+table.sheet th.corner{left:0;top:0;position:sticky;z-index:12;background:var(--corner-bg);}
+table.sheet td.rowHeader{position:sticky;left:0;background:var(--header-bg);z-index:9;font-weight:600;text-align:center;}
+.input-cell{width:100%;min-height:36px;box-sizing:border-box;border:1px solid #bbb;background:var(--in-bg);resize:vertical;padding:4px;}
+.render-cell{background:var(--out-bg);min-height:36px;padding:6px;overflow:auto;display:block;}
+.controls{display:flex;gap:6px;flex-wrap:wrap;}
+button{padding:6px 8px;cursor:pointer;}
+.small{font-size:12px;padding:4px 6px;}
+</style>
+</head>
+<body>
+<div class="panel" style="width:900px">
+  <h3>Advanced LaTeX Spreadsheet</h3>
+  <div class="controls">
+    <button id="addRow">Add Row</button>
+    <button id="exportCSV" class="small">Export CSV</button>
+    <button id="exportJSON" class="small">Export JSON</button>
+  </div>
+  <div class="container">
+    <div id="gridWrapper"></div>
+  </div>
+</div>
+<script src="spreadsheet.js"></script>
+<script src="loadQuestions.js"></script>
+</body>
+</html>
