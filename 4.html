@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spreadsheet with LaTeX Pairs + Conditional Formatting</title>
+<script src="texme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
+<style>
+body { font-family: sans-serif; padding: 20px; display: flex; gap: 20px; }
+.container { overflow: auto; max-height: 600px; border: 1px solid #ccc; flex: 1; }
+.grid { display: grid; border-collapse: collapse; }
+.cell { border: 1px solid #ccc; padding: 4px; min-width: 90px; min-height: 40px; box-sizing: border-box; }
+.input-cell { width: 100%; height: 100%; border: none; background: #e8f5ff; resize: none; }
+.render-cell { background: #f1fff1; padding: 4px; overflow-x: auto; }
+.header { background: #ddd; font-weight: bold; text-align: center; position: sticky; z-index: 2; }
+.header.col { top: 0; }
+.header.row { left: 0; }
+button { padding: 4px 8px; margin: 2px; cursor: pointer; font-size: 12px; }
+.sidebar { width: 320px; border: 1px solid #ccc; padding: 10px; }
+.rule-item { background: #fafafa; border: 1px solid #ddd; padding: 6px; margin-bottom: 6px; font-size: 14px; }
+.rule-item .actions { float: right; }
+.rule-item .actions button { margin-left: 4px; }
+</style>
+</head>
+<body>
+
+<div>
+  <h2>Spreadsheet</h2>
+  <div>
+    <button id="addRow">Add Row</button>
+    <button id="addColLatex">Add LaTeX Pair</button>
+    <button id="addColText">Add Text Col</button>
+    <button id="addColFormula">Add Formula Col</button>
+    <button id="exportCSV">Export CSV</button>
+  </div>
+  <div class="container">
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <h3>Conditional Formatting Rules</h3>
+  <form id="ruleForm">
+    <input type="text" id="ruleTarget" placeholder="Target (e.g. A1_in)" style="width:100%; margin-bottom:4px;">
+    <input type="text" id="ruleCondition" placeholder="Condition (e.g. =B1_in>5)" style="width:100%; margin-bottom:4px;">
+    <input type="text" id="ruleStyle" placeholder="Style (e.g. background:yellow)" style="width:100%; margin-bottom:4px;">
+    <button type="submit" id="ruleSubmit">Add Rule</button>
+    <button type="button" id="cancelEdit" style="display:none;">Cancel</button>
+  </form>
+  <div id="rulesList"></div>
+</div>
+
+<script>
+window.onload = function() {
+  const grid = document.getElementById('grid');
+  const columnTypes = [];
+  const cellMap = {};
+  let numRows = 0;
+  let numCols = 0;
+  const rules = [];
+  let editingIndex = null;
+
+  // ---------- Utilities ----------
+  function colName(n){ let s=''; while(n>=0){ s=String.fromCharCode(65+n%26)+s; n=Math.floor(n/26)-1;} return s; }
+  function rowName(n){ return n+1; }
+  function cellId(c,r,sub=''){ return colName(c)+rowName(r)+sub; }
+
+  // ---------- Formula Engine ----------
+  function evalFormula(formula){
+    if(!formula.startsWith('=')) return formula;
+    let expr = formula.slice(1).replace(/([A-Z]+[0-9]+(_in)?)/g,m=>{
+      const val = cellMap[m]?.value || 0;
+      return isNaN(val)?0:val;
+    });
+    try{return eval(expr);}catch(e){return '#ERR';}
+  }
+
+  // ---------- LaTeX Logic (adapted from main.js) ----------
+  function attachLatexHandlers(input, preview, id) {
+    const texmeLine = '<!DOCTYPE html><script src="texme.js"></script><textarea>';
+    let timeout = null;
+
+    function normalizeInput() {
+      let code = input.value.replace(/^\s+/, '');
+      if (!code.startsWith(texmeLine) && code.length > 0) {
+        code = texmeLine + '\n\n' + code;
+      }
+      input.value = code;
+    }
+
+    function renderPreview() {
+      let code = input.value.replace(texmeLine, '').trim();
+      preview.innerHTML = texme.render(code);
+      window.MathJax.Hub.Queue(['resetEquationNumbers', MathJax.InputJax.TeX],
+                               ['Typeset', window.MathJax.Hub, preview]);
+      cellMap[id].value = code;
+    }
+
+    function handleInput() {
+      normalizeInput();
+      renderPreview();
+      recalcAll();
+    }
+
+    function scheduleInputHandler() {
+      if (timeout !== null) {
+        window.clearTimeout(timeout);
+        timeout = null;
+      }
+      timeout = window.setTimeout(handleInput, 100);
+    }
+
+    input.onkeyup = scheduleInputHandler;
+    input.onpaste = scheduleInputHandler;
+    input.oncut = scheduleInputHandler;
+  }
+
+  // ---------- Spreadsheet Recalc ----------
+  function recalcAll(){
+    for(const key in cellMap){
+      const c = cellMap[key];
+      if(c.type==='formula') c.value = evalFormula(c.element.value);
+    }
+    applyConditionalFormatting();
+  }
+
+  // ---------- Conditional Formatting ----------
+  function applyConditionalFormatting(){
+    for(const key in cellMap){
+      if(cellMap[key].element) cellMap[key].element.style.background='';
+      if(cellMap[key].render) cellMap[key].render.style.background='#f1fff1';
+    }
+    rules.forEach(rule=>{
+      const target = cellMap[rule.target];
+      if(!target) return;
+      let expr = rule.condition.slice(1).replace(/([A-Z]+[0-9]+(_in)?)/g,m=>{
+        const val = cellMap[m]?.value || 0;
+        return isNaN(val)?0:val;
+      });
+      try{
+        if(eval(expr)) {
+          if(target.element) target.element.style = rule.style;
+          if(target.render) target.render.style = rule.style;
+        }
+      }catch(e){}
+    });
+  }
+
+  // ---------- Create Cells ----------
+  function createCell(type,col,row){
+    const idBase = cellId(col,row);
+    if(type==='latex'){
+      const input=document.createElement('textarea'); input.className='input-cell cell';
+      const render=document.createElement('div'); render.className='render-cell cell';
+      const id=idBase+'_in';
+      grid.appendChild(input); grid.appendChild(render);
+      cellMap[id]={type:'latex',element:input,value:'',render:render};
+      attachLatexHandlers(input, render, id);
+    } else {
+      const input=document.createElement('textarea'); input.className='input-cell cell';
+      input.addEventListener('input',()=>{
+        cellMap[idBase].value = type==='formula'? evalFormula(input.value): input.value;
+        recalcAll();
+      });
+      grid.appendChild(input);
+      cellMap[idBase]={type,value:'',element:input};
+    }
+  }
+
+  // ---------- Add Columns / Rows ----------
+  function addColumn(type){
+    if(type==='latex'){
+      const col=numCols;
+      columnTypes.push({type:'latex',isPair:true});
+      const head1=document.createElement('div'); head1.className='cell header col'; head1.textContent=colName(col)+" (In)";
+      const head2=document.createElement('div'); head2.className='cell header col'; head2.textContent=colName(col)+" (Out)";
+      grid.appendChild(head1); grid.appendChild(head2);
+      for(let r=0;r<numRows;r++) createCell('latex',col,r);
+    } else {
+      const col=numCols;
+      columnTypes.push({type,isPair:false});
+      const head=document.createElement('div'); head.className='cell header col'; head.textContent=colName(col);
+      grid.appendChild(head);
+      for(let r=0;r<numRows;r++) createCell(type,col,r);
+    }
+    numCols++;
+    updateGridTemplate();
+  }
+
+  function addRow(){
+    const row=numRows;
+    const head=document.createElement('div'); head.className='cell header row'; head.textContent=rowName(row);
+    grid.appendChild(head);
+    for(let c=0;c<numCols;c++) createCell(columnTypes[c].type,c,row);
+    numRows++;
+  }
+
+  function updateGridTemplate(){
+    const gridCols = 1 + columnTypes.reduce((acc,c)=> acc+(c.isPair?2:1),0);
+    grid.style.gridTemplateColumns=`repeat(${gridCols},100px)`;
+  }
+
+  // ---------- Export ----------
+  function exportCSV(){
+    let csv='';
+    for(let r=0;r<numRows;r++){
+      let row=[];
+      for(let c=0;c<numCols;c++){
+        const t = columnTypes[c];
+        if(t.isPair){ row.push('"'+(cellMap[cellId(c,r)+'_in']?.value||'')+'"'); }
+        else { row.push('"'+(cellMap[cellId(c,r)]?.value||'')+'"'); }
+      }
+      csv+=row.join(',')+'\n';
+    }
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='spreadsheet.csv'; link.click();
+  }
+
+  // ---------- Rule Sidebar ----------
+  const rulesList = document.getElementById('rulesList');
+  const ruleForm = document.getElementById('ruleForm');
+  const ruleSubmit = document.getElementById('ruleSubmit');
+  const cancelEdit = document.getElementById('cancelEdit');
+
+  function refreshRulesList(){
+    rulesList.innerHTML='';
+    rules.forEach((rule,i)=>{
+      const div=document.createElement('div'); div.className='rule-item';
+      div.innerHTML = `<b>${rule.target}</b> | ${rule.condition} | ${rule.style} 
+        <span class="actions">
+          <button data-action="edit" data-i="${i}">Edit</button>
+          <button data-action="delete" data-i="${i}">Delete</button>
+        </span>`;
+      rulesList.appendChild(div);
+    });
+
+    rulesList.querySelectorAll('button').forEach(btn=>{
+      btn.onclick=()=>{
+        const i=parseInt(btn.dataset.i);
+        if(btn.dataset.action==='delete'){
+          rules.splice(i,1);
+          refreshRulesList();
+          recalcAll();
+        }
+        else if(btn.dataset.action==='edit'){
+          const rule = rules[i];
+          document.getElementById('ruleTarget').value=rule.target;
+          document.getElementById('ruleCondition').value=rule.condition;
+          document.getElementById('ruleStyle').value=rule.style;
+          editingIndex = i;
+          ruleSubmit.textContent="Update Rule";
+          cancelEdit.style.display="inline";
+        }
+      }
+    });
+  }
+
+  ruleForm.onsubmit=function(e){
+    e.preventDefault();
+    const target=document.getElementById('ruleTarget').value.trim();
+    const condition=document.getElementById('ruleCondition').value.trim();
+    const style=document.getElementById('ruleStyle').value.trim();
+    if(target && condition && style){
+      if(editingIndex!==null){
+        rules[editingIndex]={target,condition,style};
+        editingIndex=null;
+        ruleSubmit.textContent="Add Rule";
+        cancelEdit.style.display="none";
+      } else {
+        rules.push({target,condition,style});
+      }
+      ruleForm.reset();
+      refreshRulesList();
+      recalcAll();
+    }
+  };
+
+  cancelEdit.onclick=function(){
+    editingIndex=null;
+    ruleSubmit.textContent="Add Rule";
+    cancelEdit.style.display="none";
+    ruleForm.reset();
+  };
+
+  // ---------- Buttons ----------
+  document.getElementById('addRow').onclick=addRow;
+  document.getElementById('addColLatex').onclick=()=>addColumn('latex');
+  document.getElementById('addColText').onclick=()=>addColumn('text');
+  document.getElementById('addColFormula').onclick=()=>addColumn('formula');
+  document.getElementById('exportCSV').onclick=exportCSV;
+
+  // ---------- Init ----------
+  addColumn('latex');
+  addRow();
+}
+</script>
+
+</body>
+</html>
