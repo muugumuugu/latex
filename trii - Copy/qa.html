@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Spreadsheet — LaTeX overlay + JSON import + copy/paste</title>
+
+<!-- texme must be present in same folder -->
+<script src="texme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
+
+<style>
+:root{
+  --in-bg:#e8f5ff;
+  --out-bg:#f1fff1;
+  --header-bg:#ddd;
+  --corner-bg:#ccc;
+  --cell-w:180px;
+}
+body{font-family:system-ui,Arial;margin:12px;display:flex;flex-direction:column;gap:12px;}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.controls .group{display:flex;gap:6px;align-items:center;}
+.container{overflow:auto;max-height:65vh;border:1px solid #bbb;}
+table.sheet{border-collapse:collapse;width:max-content;min-width:100%;}
+table.sheet th, table.sheet td{border:1px solid #ccc;padding:6px;min-width:var(--cell-w);vertical-align:top;box-sizing:border-box;position:relative;}
+table.sheet th{background:var(--header-bg);font-weight:700;text-align:center;position:sticky;top:0;z-index:10;cursor:pointer;}
+table.sheet th.corner{left:0;top:0;position:sticky;z-index:12;background:var(--corner-bg);}
+.rowHeader{position:sticky;left:0;background:var(--header-bg);z-index:9;font-weight:600;text-align:center;}
+.textarea-edit{width:100%;min-height:36px;box-sizing:border-box;border:1px solid #bbb;background:var(--in-bg);resize:vertical;padding:6px;font-family:monospace;}
+.render-cell{background:var(--out-bg);min-height:36px;padding:6px;overflow:auto;}
+.overlay-textarea{position:absolute;top:0;left:0;width:100%;height:100%;box-sizing:border-box;padding:6px;border:none;background:transparent;z-index:5;display:none;font-family:monospace;}
+.small{font-size:12px;padding:6px;}
+.ml{margin-left:8px;}
+#importJsonInput{display:none;}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <div class="group">
+    <button id="addColLatex">Add LaTeX</button>
+    <button id="addColText">Add Text</button>
+    <button id="addColFormula">Add Formula</button>
+    <button id="addRow">Add Row</button>
+  </div>
+
+  <div class="group">
+    <button id="exportCSVRaw" class="small">Export CSV (Raw)</button>
+    <button id="exportCSVRendered" class="small">Export CSV (Rendered HTML)</button>
+    <button id="exportJSONRaw" class="small">Export JSON (Raw)</button>
+  </div>
+
+  <div class="group">
+    <button id="copyRow" class="small">Copy Row</button>
+    <button id="pasteRow" class="small">Paste Row</button>
+    <button id="copyCol" class="small">Copy Col</button>
+    <button id="pasteCol" class="small">Paste Col</button>
+  </div>
+
+  <div class="group ml">
+    <label for="importJsonFile" class="small">Import JSON:</label>
+    <input id="importJsonFile" type="file" accept=".json,.txt">
+  </div>
+
+  <div class="group ml">
+    <button id="resetSheet" class="small">Reset Sheet</button>
+  </div>
+</div>
+
+<div class="container"><div id="gridWrapper"></div></div>
+
+<script>
+/* -------------------------------------------
+   Spreadsheet engine with requested features
+   - LaTeX overlay (click preview -> edit -> blur -> preview)
+   - JSON import via file or loadQuestions(json)
+   - Column editing (name/type)
+   - Copy/paste rows & columns
+   - Export CSV raw / rendered, Export JSON
+-------------------------------------------- */
+
+(function(){
+  // state
+  const wrapper = document.getElementById('gridWrapper');
+  let columnTypes = []; // {type: 'latex'|'text'|'formula', name: string}
+  let cellMap = {};     // id -> { type, value, element?, render? }
+  let numRows = 0, numCols = 0;
+
+  // copy buffers
+  let copyBufferRow = null;   // array of values
+  let copyBufferCol = null;   // array of values
+
+  // helpers
+  function colName(n){ let s=''; while(n>=0){ s=String.fromCharCode(65+(n%26))+s; n=Math.floor(n/26)-1; } return s; }
+  function rowName(r){ return (r+1).toString(); }
+  function cellId(c,r,suffix=''){ return colName(c) + rowName(r) + (suffix||''); }
+
+  // render table
+  function renderTable(){
+    wrapper.innerHTML = '';
+    const table = document.createElement('table'); table.className = 'sheet';
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+
+    // corner
+    const corner = document.createElement('th'); corner.className='corner'; corner.textContent=''; headRow.appendChild(corner);
+
+    // headers - for latex columns we show single header (we use overlay single TD for latex)
+    for(let c=0;c<numCols;c++){
+      const spec = columnTypes[c];
+      const th = document.createElement('th');
+      th.textContent = spec.name || colName(c);
+      th.title = 'Click to edit column name / type';
+      th.addEventListener('click', ()=> editColumn(c));
+      headRow.appendChild(th);
+    }
+    thead.appendChild(headRow); table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+
+    for(let r=0;r<numRows;r++){
+      const tr = document.createElement('tr');
+
+      const thRow = document.createElement('th');
+      thRow.className = 'rowHeader';
+      thRow.textContent = rowName(r);
+      tr.appendChild(thRow);
+
+      for(let c=0;c<numCols;c++){
+        const spec = columnTypes[c];
+        const td = document.createElement('td'); td.style.position='relative';
+        const idBase = cellId(c,r);
+
+        if(spec.type === 'latex'){
+          // render div (visible), overlay textarea (hidden until edit)
+          const renderDiv = document.createElement('div');
+          renderDiv.className = 'render-cell';
+          renderDiv.dataset.id = idBase + '_out';
+          td.appendChild(renderDiv);
+
+          const inputTa = document.createElement('textarea');
+          inputTa.className = 'overlay-textarea';
+          inputTa.dataset.id = idBase + '_in';
+          inputTa.placeholder = 'LaTeX source';
+          td.appendChild(inputTa);
+
+          // register in cellMap
+          cellMap[idBase + '_in'] = cellMap[idBase + '_in'] || { type:'latex', value: inputTa.value || '', element: inputTa, render: renderDiv };
+          // ensure render element reference
+          cellMap[idBase + '_in'].element = inputTa;
+          cellMap[idBase + '_in'].render = renderDiv;
+          // initial display: render preview and hide textarea
+          inputTa.style.display = 'none';
+          try { renderDiv.innerHTML = texme.render(cellMap[idBase + '_in'].value || ''); }
+          catch(e){ renderDiv.innerHTML = '<span style="color:red">render error</span>'; }
+          if(window.MathJax && window.MathJax.Hub) window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub, renderDiv]);
+
+          // click preview -> edit
+          renderDiv.addEventListener('click', ()=> {
+            renderDiv.style.display = 'none';
+            inputTa.style.display = 'block';
+            inputTa.value = cellMap[idBase + '_in'].value || '';
+            inputTa.focus();
+            // place caret at end
+            inputTa.selectionStart = inputTa.selectionEnd = inputTa.value.length;
+          });
+
+          // blur -> render and hide textarea
+          inputTa.addEventListener('blur', ()=> {
+            inputTa.style.display = 'none';
+            renderDiv.style.display = 'block';
+            cellMap[idBase + '_in'].value = inputTa.value || '';
+            try { renderDiv.innerHTML = texme.render(cellMap[idBase + '_in'].value || ''); }
+            catch(e){ renderDiv.innerHTML = '<span style="color:red">render error</span>'; }
+            if(window.MathJax && window.MathJax.Hub) window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub, renderDiv]);
+          });
+
+          // input quick-preview (optional): keep preview updated but still show textarea on edit blur
+          inputTa.addEventListener('input', ()=> {
+            // update cellMap value but don't switch visibility
+            cellMap[idBase + '_in'].value = inputTa.value || '';
+          });
+
+          // copy shortcuts on render click (double click)
+          renderDiv.addEventListener('dblclick', ()=> {
+            const html = renderDiv.innerHTML || '';
+            navigator.clipboard?.writeText(html).catch(()=>{});
+            renderDiv.style.outline = '2px solid green';
+            setTimeout(()=> renderDiv.style.outline = '', 300);
+          });
+
+        } else if(spec.type === 'formula' || spec.type === 'text'){
+          const ta = document.createElement('textarea');
+          ta.className = 'textarea-edit';
+          ta.style.display = 'block';
+          ta.value = (cellMap[idBase] && cellMap[idBase].value) || '';
+          td.appendChild(ta);
+          cellMap[idBase] = cellMap[idBase] || { type: spec.type, value: ta.value, element: ta };
+          cellMap[idBase].element = ta;
+          // input handler
+          ta.addEventListener('input', ()=> {
+            if(spec.type === 'formula') {
+              cellMap[idBase].value = evalFormula(ta.value);
+            } else {
+              cellMap[idBase].value = ta.value;
+            }
+          });
+          // click to copy raw text
+          ta.addEventListener('click', ()=> {
+            navigator.clipboard?.writeText(ta.value).catch(()=>{});
+            ta.style.outline = '2px solid blue';
+            setTimeout(()=> ta.style.outline = '', 200);
+          });
+        }
+
+        tr.appendChild(td);
+      }
+
+      tbody.appendChild(tr);
+    }
+
+    table.appendChild(tbody);
+    wrapper.appendChild(table);
+    // attach latex render handlers (for any newly created cells)
+    attachAllLatexHandlers();
+  }
+
+  // attach handlers used by latex cells
+  function attachAllLatexHandlers(){
+    for(const key in cellMap){
+      if(!cellMap.hasOwnProperty(key)) continue;
+      const c = cellMap[key];
+      if(c.type !== 'latex') continue;
+      // ensure element & render exist
+      if(!c.element || !c.render) continue;
+      // input already has listeners wired in renderTable; ensure value sync
+      // initial render (in case load/populate changed value)
+      try{ c.render.innerHTML = texme.render(c.value || ''); }
+      catch(e){ c.render.innerHTML = '<span style="color:red">render error</span>'; }
+      if(window.MathJax && window.MathJax.Hub) window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub, c.render]);
+    }
+  }
+
+  // eval simple formulas referencing A1 style cells and arithmetic, precautionary
+  function evalFormula(formula){
+    if(!formula || typeof formula !== 'string') return formula;
+    if(!formula.startsWith('=')) return formula;
+    // replace cell references with numeric values if present
+    const expr = formula.slice(1).replace(/([A-Z]+[0-9]+)/g, (m)=>{
+      const v = (cellMap[m] && cellMap[m].value) || 0;
+      return (isFinite(v) && v !== '') ? v : 0;
+    });
+    try { /* eslint-disable no-eval */ return eval(expr); /* eslint-enable no-eval */ }
+    catch(e){ return '#ERR'; }
+  }
+
+  // Column editing: rename & change type
+  function editColumn(colIndex){
+    const spec = columnTypes[colIndex];
+    const newName = prompt('Column name:', spec.name || colName(colIndex));
+    if(newName === null) return;
+    spec.name = newName;
+    const newType = prompt('Column type: latex / text / formula', spec.type);
+    if(newType === 'latex' || newType === 'text' || newType === 'formula') spec.type = newType;
+    // rebuild table to apply changes (preserve values)
+    renderTable();
+  }
+
+  // copy/paste rows
+  function copyRow(index){
+    if(index === undefined || index === null) {
+      const p = prompt('Row number to copy (1..' + numRows + '):');
+      index = (p ? parseInt(p,10)-1 : NaN);
+    }
+    if(Number.isNaN(index) || index < 0 || index >= numRows) return alert('Invalid row');
+    const buffer = [];
+    for(let c=0;c<numCols;c++){
+      const spec = columnTypes[c];
+      if(spec.type === 'latex') buffer.push(cellMap[cellId(c,index,'_in')]?.value || '');
+      else buffer.push(cellMap[cellId(c,index,'')]?.value || '');
+    }
+    copyBufferRow = buffer;
+    alert('Row ' + (index+1) + ' copied.');
+  }
+
+  function pasteRow(targetIndex){
+    if(!copyBufferRow) return alert('No copied row in buffer');
+    if(targetIndex === undefined || targetIndex === null) {
+      const p = prompt('Paste into row number (1..' + numRows + '):');
+      targetIndex = (p ? parseInt(p,10)-1 : NaN);
+    }
+    if(Number.isNaN(targetIndex) || targetIndex < 0 || targetIndex >= numRows) return alert('Invalid row');
+    for(let c=0;c<numCols;c++){
+      const spec = columnTypes[c];
+      if(spec.type === 'latex'){
+        const id = cellId(c,targetIndex,'_in');
+        if(!cellMap[id]) cellMap[id] = { type:'latex', value:'', element:null, render:null };
+        cellMap[id].value = copyBufferRow[c] || '';
+      } else {
+        const id = cellId(c,targetIndex,'');
+        if(!cellMap[id]) cellMap[id] = { type:spec.type, value:'', element:null };
+        cellMap[id].value = copyBufferRow[c] || '';
+      }
+    }
+    renderTable();
+  }
+
+  // copy/paste columns
+  function copyCol(index){
+    if(index === undefined || index === null) {
+      const p = prompt('Column number to copy (1..' + numCols + '):');
+      index = (p ? parseInt(p,10)-1 : NaN);
+    }
+    if(Number.isNaN(index) || index < 0 || index >= numCols) return alert('Invalid column');
+    const buffer = [];
+    for(let r=0;r<numRows;r++){
+      const spec = columnTypes[index];
+      if(spec.type === 'latex') buffer.push(cellMap[cellId(index,r,'_in')]?.value || '');
+      else buffer.push(cellMap[cellId(index,r,'')]?.value || '');
+    }
+    copyBufferCol = { index, data: buffer, type: columnTypes[index].type };
+    alert('Column ' + (index+1) + ' copied.');
+  }
+
+  function pasteCol(targetIndex){
+    if(!copyBufferCol) return alert('No copied column in buffer');
+    if(targetIndex === undefined || targetIndex === null) {
+      const p = prompt('Paste into column number (1..' + numCols + '):');
+      targetIndex = (p ? parseInt(p,10)-1 : NaN);
+    }
+    if(Number.isNaN(targetIndex) || targetIndex < 0 || targetIndex >= numCols) return alert('Invalid column');
+    // ensure target column type matches source; if not, ask to convert
+    if(columnTypes[targetIndex].type !== copyBufferCol.type){
+      const ok = confirm('Target column type differs. Change target column type to copied column type?');
+      if(ok) columnTypes[targetIndex].type = copyBufferCol.type;
+    }
+    for(let r=0;r<numRows;r++){
+      const val = copyBufferCol.data[r] || '';
+      if(copyBufferCol.type === 'latex'){
+        const id = cellId(targetIndex,r,'_in');
+        if(!cellMap[id]) cellMap[id] = { type:'latex', value:'', element:null, render:null };
+        cellMap[id].value = val;
+      } else {
+        const id = cellId(targetIndex,r,'');
+        if(!cellMap[id]) cellMap[id] = { type:columnTypes[targetIndex].type, value:'', element:null };
+        cellMap[id].value = val;
+      }
+    }
+    renderTable();
+  }
+
+  // export CSV raw / rendered
+  function exportCSV(rendered=false){
+    const rows = [];
+    // header row: use column names
+    const headers = columnTypes.map((s)=>s.name || '');
+    rows.push(headers.map(h => '"' + (h||'').replace(/"/g,'""') + '"').join(','));
+    for(let r=0;r<numRows;r++){
+      const cells = [];
+      for(let c=0;c<numCols;c++){
+        const spec = columnTypes[c];
+        if(spec.type === 'latex'){
+          const id = cellId(c,r,'_in');
+          if(rendered){
+            const html = cellMap[id]?.render?.innerHTML || cellMap[id]?.value || '';
+            cells.push('"' + String(html).replace(/"/g,'""') + '"');
+          } else {
+            const raw = cellMap[id]?.value || '';
+            cells.push('"' + String(raw).replace(/"/g,'""') + '"');
+          }
+        } else {
+          const id = cellId(c,r,'');
+          const val = cellMap[id]?.value || '';
+          cells.push('"' + String(val).replace(/"/g,'""') + '"');
+        }
+      }
+      rows.push(cells.join(','));
+    }
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = rendered ? 'sheet_rendered.csv' : 'sheet_raw.csv'; a.click();
+  }
+
+  // export JSON (raw)
+  function exportJSON(){
+    const data = [];
+    for(let r=0;r<numRows;r++){
+      const obj = {};
+      for(let c=0;c<numCols;c++){
+        const spec = columnTypes[c];
+        const key = spec.name || colName(c);
+        if(spec.type === 'latex'){
+          obj[key] = cellMap[cellId(c,r,'_in')]?.value || '';
+        } else {
+          obj[key] = cellMap[cellId(c,r,'')]?.value || '';
+        }
+      }
+      data.push(obj);
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sheet.json'; a.click();
+  }
+
+  // JSON import helper (array of objects)
+  function loadQuestions(jsonArray){
+    if(!Array.isArray(jsonArray)) {
+      alert('loadQuestions expects an array of objects');
+      return;
+    }
+    // heuristic: check keys in first object
+    const keys = Object.keys(jsonArray[0] || {});
+    // decide columns: if keys include 'question'/'text'/'prompt' and 'solution' etc -> set columns accordingly
+    // We will create columns in this order: question (latex), answer (text), solution (latex) if present, else create columns from keys
+    const lower = k => k.toLowerCase();
+    const first = jsonArray[0] || {};
+    const hasQ = keys.find(k => /^(question|text|prompt|q|stem)$/i.test(k));
+    const hasSol = keys.find(k => /^(solution|sol|explanation|work)$/i.test(k));
+    const hasAns = keys.find(k => /^(answer|ans|letter|answerletter)$/i.test(k));
+    // reset sheet
+    columnTypes = [];
+    cellMap = {};
+    numRows = 0; numCols = 0;
+
+    if(hasQ || hasAns || hasSol){
+      if(hasQ) addColumnSilent('latex', 'question');
+      if(hasAns) addColumnSilent('text', 'answer');
+      if(hasSol) addColumnSilent('latex', 'solution');
+      // populate rows
+      for(const item of jsonArray){
+        addRowSilent();
+        const r = numRows - 1;
+        let colIdx = 0;
+        if(hasQ){ const v = item[hasQ] ?? ''; setCellValue(colIdx, r, v, 'latex'); colIdx++; }
+        if(hasAns){ const v = item[hasAns] ?? ''; setCellValue(colIdx, r, v, 'text'); colIdx++; }
+        if(hasSol){ const v = item[hasSol] ?? ''; setCellValue(colIdx, r, v, 'latex'); colIdx++; }
+      }
+    } else {
+      // generic: create columns for keys in object (treat long text or containing $ as latex)
+      for(const k of keys){
+        addColumnSilent('text', k);
+      }
+      for(const item of jsonArray){
+        addRowSilent();
+        const r = numRows - 1;
+        keys.forEach((k, i)=>{
+          const raw = item[k] ?? '';
+          const typeGuess = (typeof raw === 'string' && raw.length>50) || (String(raw).includes('$')) ? 'latex' : 'text';
+          setCellValue(i, r, raw, typeGuess);
+        });
+      }
+    }
+    renderTable();
+  }
+
+  // helper functions for silent add (no re-render every time)
+  function addColumnSilent(type='text', name=''){
+    columnTypes.push({ type, name: name||'' });
+    numCols++;
+  }
+  function addRowSilent(){
+    numRows++;
+  }
+  function setCellValue(c, r, value, type){
+    if(type === 'latex') {
+      const id = cellId(c,r,'_in');
+      cellMap[id] = cellMap[id] || { type:'latex', value:'', element:null, render:null };
+      cellMap[id].value = String(value || '');
+    } else {
+      const id = cellId(c,r,'');
+      cellMap[id] = cellMap[id] || { type:type, value:'', element:null };
+      cellMap[id].value = String(value || '');
+    }
+  }
+
+  // file input JSON import wiring
+  const importJsonFile = document.getElementById('importJsonFile');
+  importJsonFile.addEventListener('change', (ev)=>{
+    const f = ev.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ()=> {
+      try {
+        const parsed = JSON.parse(reader.result);
+        loadQuestions(parsed);
+      } catch(e){
+        alert('Invalid JSON file');
+      }
+    };
+    reader.readAsText(f);
+  });
+
+  // public wrappers for buttons and global functions
+  function addColumn(type){
+    columnTypes.push({ type, name: '' });
+    numCols++;
+    renderTable();
+  }
+  function addRow(){
+    numRows++;
+    renderTable();
+  }
+  function resetSheet(){
+    if(!confirm('Reset sheet? This clears everything.')) return;
+    columnTypes = []; cellMap = {}; numRows=0; numCols=0;
+    // create default one latex column + one row
+    addColumn('latex'); addRow();
+  }
+
+  // wire control buttons
+  document.getElementById('addColLatex').addEventListener('click', ()=> addColumn('latex'));
+  document.getElementById('addColText').addEventListener('click', ()=> addColumn('text'));
+  document.getElementById('addColFormula').addEventListener('click', ()=> addColumn('formula'));
+  document.getElementById('addRow').addEventListener('click', addRow);
+  document.getElementById('exportCSVRaw').addEventListener('click', ()=> exportCSV(false));
+  document.getElementById('exportCSVRendered').addEventListener('click', ()=> exportCSV(true));
+  document.getElementById('exportJSONRaw').addEventListener('click', exportJSON);
+  document.getElementById('copyRow').addEventListener('click', ()=> copyRow());
+  document.getElementById('pasteRow').addEventListener('click', ()=> pasteRow());
+  document.getElementById('copyCol').addEventListener('click', ()=> copyCol());
+  document.getElementById('pasteCol').addEventListener('click', ()=> pasteCol());
+  document.getElementById('resetSheet').addEventListener('click', resetSheet);
+
+  // expose a global loader for programmatic import
+  window.loadQuestions = loadQuestions;
+  window.copyRow = copyRow;
+  window.pasteRow = pasteRow;
+  window.copyCol = copyCol;
+  window.pasteCol = pasteCol;
+  window.exportCSV = exportCSV;
+  window.exportJSON = exportJSON;
+
+  // initialize with sensible defaults
+  addColumn('latex'); addColumn('text'); addRow();
+  renderTable();
+
+})();
+</script>
+
+</body>
+</html>

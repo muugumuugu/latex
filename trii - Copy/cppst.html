@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spreadsheet — LaTeX Overlay Focus</title>
+<script src="texme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"></script>
+<style>
+  :root{
+    --in-bg:#e8f5ff;
+    --out-bg:#f1fff1;
+    --header-bg:#ddd;
+    --corner-bg:#ccc;
+    --cell-w:140px;
+  }
+  body { font-family: system-ui, Arial; margin:12px; display:flex; flex-direction:column; gap:12px; }
+  .controls { display:flex; gap:6px; flex-wrap:wrap; }
+  button{ padding:6px 10px; cursor:pointer; }
+  .container { overflow:auto; max-height:70vh; border:1px solid #bbb; }
+  table.sheet { border-collapse:collapse; width:max-content; min-width:100%; }
+  table.sheet th, table.sheet td { border:1px solid #ccc; padding:6px; min-width:var(--cell-w); vertical-align:top; position:relative; }
+  table.sheet th { background:var(--header-bg); font-weight:700; text-align:center; position:sticky; top:0; z-index:10; }
+  table.sheet th.corner { left:0; top:0; position:sticky; z-index:12; background:var(--corner-bg); }
+  table.sheet td.rowHeader { position:sticky; left:0; background:var(--header-bg); z-index:9; font-weight:600; text-align:center; }
+
+  /* LaTeX input overlays rendered preview */
+  .input-overlay { 
+    width:100%; min-height:36px; box-sizing:border-box; border:1px solid #bbb; 
+    background:var(--in-bg); resize:vertical; padding:4px; position:absolute; 
+    top:0; left:0; display:none; z-index:2; 
+  }
+  .render-cell { 
+    background:var(--out-bg); min-height:36px; padding:4px; overflow:auto; 
+    width:100%; height:100%; box-sizing:border-box; 
+  }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <button id="addColLatex">Add LaTeX Column</button>
+  <button id="addColText">Add Text Column</button>
+  <button id="addColFormula">Add Formula Column</button>
+  <button id="addRow">Add Row</button>
+  <button id="exportCSVRaw">Export CSV (Raw)</button>
+  <button id="exportCSVRendered">Export CSV (Rendered HTML)</button>
+</div>
+
+<div class="container">
+  <div id="gridWrapper"></div>
+</div>
+
+<script>
+(function(){
+  const wrapper=document.getElementById('gridWrapper');
+  let columnTypes=[], cellMap={}, numRows=0, numCols=0;
+
+  function colName(n){ let s=''; while(n>=0){ s=String.fromCharCode(65+n%26)+s; n=Math.floor(n/26)-1;} return s;}
+  function rowName(r){ return (r+1).toString(); }
+  function cellId(c,r){ return colName(c)+rowName(r); }
+
+  function renderTable(){
+    wrapper.innerHTML='';
+    const table=document.createElement('table'); table.className='sheet';
+    const thead=document.createElement('thead'); const headRow=document.createElement('tr');
+    const corner=document.createElement('th'); corner.className='corner'; corner.textContent=''; headRow.appendChild(corner);
+
+    for(let c=0;c<numCols;c++){
+      const spec=columnTypes[c];
+      const th=document.createElement('th'); th.textContent=colName(c); headRow.appendChild(th);
+    }
+    thead.appendChild(headRow); table.appendChild(thead);
+
+    const tbody=document.createElement('tbody');
+    for(let r=0;r<numRows;r++){
+      const tr=document.createElement('tr');
+      const thRow=document.createElement('th'); thRow.className='rowHeader'; thRow.textContent=rowName(r); tr.appendChild(thRow);
+
+      for(let c=0;c<numCols;c++){
+        const spec=columnTypes[c]; const td=document.createElement('td');
+        const id=cellId(c,r);
+
+        if(spec.type==='latex'){
+          const divOut=document.createElement('div'); divOut.className='render-cell';
+          td.appendChild(divOut);
+
+          const ta=document.createElement('textarea'); ta.className='input-overlay';
+          ta.value=cellMap[id]?.value||'';
+          td.appendChild(ta);
+
+          cellMap[id]={type:'latex',value:ta.value,element:ta,render:divOut};
+
+          // show textarea on focus, render on blur
+          divOut.addEventListener('click',()=>{ ta.style.display='block'; ta.focus(); divOut.style.display='none'; });
+          ta.addEventListener('blur',()=>{
+            ta.style.display='none';
+            divOut.style.display='block'; 
+            cellMap[id].value=ta.value;
+            try{ divOut.innerHTML=texme.render(ta.value); }catch(e){ divOut.innerHTML='<span style="color:red">render error</span>'; }
+            if(window.MathJax && window.MathJax.Hub) window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub, divOut]);
+          });
+
+          // initial render
+          try{ divOut.innerHTML=texme.render(ta.value); }catch(e){ divOut.innerHTML='<span style="color:red">render error</span>'; }
+        } else {
+          const ta=document.createElement('textarea'); ta.className='input-overlay';
+          ta.value=cellMap[id]?.value||'';
+          td.appendChild(ta);
+          cellMap[id]={type:spec.type,value:ta.value,element:ta};
+          ta.addEventListener('input',()=>{ cellMap[id].value=ta.value; });
+        }
+
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody); wrapper.appendChild(table);
+  }
+
+  function addColumn(type){ columnTypes.push({type}); numCols++; renderTable(); }
+  function addRow(){ numRows++; renderTable(); }
+
+  function exportCSV(rendered=false){
+    const rows=[];
+    for(let r=0;r<numRows;r++){
+      const cells=[];
+      for(let c=0;c<numCols;c++){
+        const id=cellId(c,r);
+        if(!cellMap[id]){ cells.push(''); continue;}
+        if(cellMap[id].type==='latex'){
+          const val = rendered ? (cellMap[id].render.innerHTML||'') : (cellMap[id].value||'');
+          cells.push('"' + val.replace(/"/g,'""') + '"');
+        } else {
+          cells.push('"' + (cellMap[id].value||'').replace(/"/g,'""') + '"');
+        }
+      }
+      rows.push(cells.join(','));
+    }
+    const blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'});
+    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='sheet.csv'; link.click();
+  }
+
+  document.getElementById('addColLatex').addEventListener('click',()=>addColumn('latex'));
+  document.getElementById('addColText').addEventListener('click',()=>addColumn('text'));
+  document.getElementById('addColFormula').addEventListener('click',()=>addColumn('formula'));
+  document.getElementById('addRow').addEventListener('click',addRow);
+  document.getElementById('exportCSVRaw').addEventListener('click',()=>exportCSV(false));
+  document.getElementById('exportCSVRendered').addEventListener('click',()=>exportCSV(true));
+
+  addColumn('latex'); addRow();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+body {
+  font-family: sans-serif;
+}
+
+#wrapper {
+  margin: 10px;
+  overflow-x: auto;
+}
+
+.sheet {
+  border-collapse: collapse;
+}
+
+.sheet th, .sheet td {
+  border: 1px solid #ccc;
+  padding: 4px;
+  min-width: 120px;
+}
+
+textarea.input-cell {
+  width: 100%;
+  height: 40px;
+  resize: vertical;
+}
+
+.render-cell {
+  min-height: 40px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+#sidebar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  background: #f8f8f8;
+  border-left: 1px solid #ccc;
+  width: 250px;
+  height: 100%;
+  padding: 10px;
+}
+
+.hidden {
+  display: none;
+}

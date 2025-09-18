@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Spreadsheet with LaTeX</title>
+<style>
+  body { font-family: sans-serif; }
+  table.sheet { border-collapse: collapse; }
+  table.sheet th, table.sheet td { border: 1px solid #ccc; padding: 4px; vertical-align: top; }
+  th { background: #eee; cursor: pointer; }
+  textarea.input-cell { width: 100%; height: 2em; box-sizing: border-box; }
+  div.render-cell { min-height: 2em; }
+</style>
+<!-- MathJax for LaTeX rendering -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({tex2jax:{inlineMath:[['\\(','\\)'],['$','$']]}});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+
+<div id="controls">
+  <button id="addRow">Add Row</button>
+  <button id="addCol">Add Column</button>
+  <button id="copyRow">Copy Row</button>
+  <button id="pasteRow">Paste Row</button>
+  <button id="copyCol">Copy Col</button>
+  <button id="pasteCol">Paste Col</button>
+  <button id="exportCSVRaw">Export CSV (raw)</button>
+  <button id="exportCSVRendered">Export CSV (rendered)</button>
+  <input type="file" id="importCSV" accept=".csv"/>
+</div>
+
+<div id="sheet"></div>
+
+<script>
+(function(){
+  let data=[[]];
+  let columnTypes=[]; // {name,type}
+  let clipboardRow=null, clipboardCol=null;
+
+  const sheetDiv=document.getElementById('sheet');
+
+  function colName(i){ return String.fromCharCode(65+i); }
+  function rowName(i){ return (i+1).toString(); }
+
+  function renderTable(){
+    sheetDiv.innerHTML='';
+    const table=document.createElement('table'); table.className='sheet';
+    const thead=document.createElement('thead'); const trh=document.createElement('tr');
+    const corner=document.createElement('th'); trh.appendChild(corner);
+    for(let c=0;c<columnTypes.length;c++){
+      const th=document.createElement('th'); th.textContent=columnTypes[c].name;
+      th.onclick=()=>editColumn(c);
+      trh.appendChild(th);
+    }
+    thead.appendChild(trh); table.appendChild(thead);
+
+    const tbody=document.createElement('tbody');
+    for(let r=0;r<data.length;r++){
+      const tr=document.createElement('tr');
+      const rowh=document.createElement('th'); rowh.textContent=rowName(r); tr.appendChild(rowh);
+      for(let c=0;c<columnTypes.length;c++){
+        const td=document.createElement('td');
+        const ta=document.createElement('textarea'); ta.className='input-cell';
+        const div=document.createElement('div'); div.className='render-cell';
+        let val=data[r][c]||'';
+        ta.value=val;
+        if(columnTypes[c].type==='latex'){
+          div.textContent=val?`\\(${val}\\)`:''; 
+          MathJax.Hub.Queue(['Typeset',MathJax.Hub,div]);
+        } else {
+          div.textContent=val;
+        }
+        ta.style.display='none';
+        div.style.display='block';
+
+        div.onclick=()=>{
+          ta.style.display='block'; div.style.display='none'; ta.focus();
+        };
+        ta.addEventListener('blur',()=>{
+          data[r][c]=ta.value;
+          if(columnTypes[c].type==='latex'){
+            div.textContent=ta.value?`\\(${ta.value}\\)`:''; 
+            MathJax.Hub.Queue(['Typeset',MathJax.Hub,div]);
+          } else {
+            div.textContent=ta.value;
+          }
+          ta.style.display='none'; div.style.display='block';
+        });
+
+        td.appendChild(ta); td.appendChild(div); tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody); sheetDiv.appendChild(table);
+  }
+
+  function addRow(){ data.push(new Array(columnTypes.length).fill("")); renderTable(); }
+  function addColumn(type='latex'){ columnTypes.push({name:colName(columnTypes.length), type:type}); for(let r=0;r<data.length;r++) data[r].push(""); renderTable(); }
+  function editColumn(c){
+    const newName=prompt("Column name:", columnTypes[c].name);
+    if(newName!==null) columnTypes[c].name=newName;
+    const newType=prompt("Column type (text/latex):", columnTypes[c].type);
+    if(newType==='text'||newType==='latex') columnTypes[c].type=newType;
+    renderTable();
+  }
+
+  function copyRow(){
+    const idx=prompt("Row number to copy:"); if(idx) clipboardRow=[...data[parseInt(idx)-1]];
+  }
+  function pasteRow(){
+    const idx=prompt("Row number to paste into:"); if(idx&&clipboardRow){ data[parseInt(idx)-1]=[...clipboardRow]; renderTable(); }
+  }
+  function copyCol(){
+    const idx=prompt("Column index (A,B,...) to copy:"); 
+    if(idx){ let c=idx.toUpperCase().charCodeAt(0)-65; clipboardCol=data.map(r=>r[c]); }
+  }
+  function pasteCol(){
+    const idx=prompt("Column index to paste into (A,B,...):"); 
+    if(idx&&clipboardCol){ let c=idx.toUpperCase().charCodeAt(0)-65; for(let r=0;r<data.length;r++) data[r][c]=clipboardCol[r]; renderTable(); }
+  }
+
+  function exportCSV(rendered=false){
+    let csv='';
+    csv+=columnTypes.map(ct=>ct.name).join(',')+'\\n';
+    for(let r=0;r<data.length;r++){
+      let row=[];
+      for(let c=0;c<columnTypes.length;c++){
+        let val=data[r][c]||'';
+        if(rendered && columnTypes[c].type==='latex'){
+          val=`<span class="math">\\(${val}\\)</span>`;
+        }
+        row.push('"'+val.replace(/"/g,'""')+'"');
+      }
+      csv+=row.join(',')+'\\n';
+    }
+    const blob=new Blob([csv],{type:'text/csv'}); 
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='sheet.csv'; a.click(); URL.revokeObjectURL(url);
+  }
+
+  function importCSV(file){
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      const lines=e.target.result.split(/\\r?\\n/).filter(l=>l.trim().length>0);
+      columnTypes=lines[0].split(',').map(h=>({name:h.trim(), type:'latex'}));
+      data=[];
+      for(let i=1;i<lines.length;i++){
+        const parts=lines[i].split(',');
+        data.push(parts.map(p=>p.replace(/^"|"$/g,'')));
+      }
+      renderTable();
+    };
+    reader.readAsText(file);
+  }
+
+  document.getElementById('addRow').onclick=addRow;
+  document.getElementById('addCol').onclick=()=>addColumn('latex');
+  document.getElementById('copyRow').onclick=copyRow;
+  document.getElementById('pasteRow').onclick=pasteRow;
+  document.getElementById('copyCol').onclick=copyCol;
+  document.getElementById('pasteCol').onclick=pasteCol;
+  document.getElementById('exportCSVRaw').onclick=()=>exportCSV(false);
+  document.getElementById('exportCSVRendered').onclick=()=>exportCSV(true);
+  document.getElementById('importCSV').addEventListener('change',e=>{
+    if(e.target.files.length>0) importCSV(e.target.files[0]);
+  });
+
+  // initialize
+  addColumn('latex'); addRow();
+})();
+</script>
+
+</body>
+</html>
