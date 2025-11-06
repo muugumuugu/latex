@@ -1,155 +1,1037 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BambooMart - Handcrafted Bamboo Products</title>
-    <meta name="description" content="Order authentic handcrafted bamboo products with instant local delivery">
+import React, { useState, useEffect } from 'react';
+import { ShoppingCart, Search, Home, User, Package, Star, MapPin, Phone, Mail, ArrowLeft, Plus, Minus, Trash2, Check, Settings, Edit2, Save, X, LogIn, LogOut } from 'lucide-react';
+
+export default function BambooMartApp() {
+  const [currentScreen, setCurrentScreen] = useState('home');
+  const [cart, setCart] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(['All']);
+  const [userInfo, setUserInfo] = useState({ name: '', phone: '', address: '', pincode: '' });
+  const [checkoutStep, setCheckoutStep] = useState('details');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+
+  const ADMIN_PASSWORD = 'bamboo2024'; // Change this to your secure password
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const cartData = await window.storage.get('bamboo-cart');
+      const ordersData = await window.storage.get('bamboo-orders');
+      const userInfoData = await window.storage.get('bamboo-user');
+      const productsData = await window.storage.get('bamboo-products');
+      const categoriesData = await window.storage.get('bamboo-categories');
+      
+      if (cartData) setCart(JSON.parse(cartData.value));
+      if (ordersData) setOrders(JSON.parse(ordersData.value));
+      if (userInfoData) setUserInfo(JSON.parse(userInfoData.value));
+      if (productsData) {
+        setProducts(JSON.parse(productsData.value));
+      } else {
+        const defaultProducts = getDefaultProducts();
+        setProducts(defaultProducts);
+        await window.storage.set('bamboo-products', JSON.stringify(defaultProducts));
+      }
+      if (categoriesData) {
+        setCategories(JSON.parse(categoriesData.value));
+      } else {
+        const defaultCategories = ['All', 'Doors', 'Windows', 'Mats', 'Furniture', 'Decor', 'Religious', 'Handicrafts'];
+        setCategories(defaultCategories);
+        await window.storage.set('bamboo-categories', JSON.stringify(defaultCategories));
+      }
+    } catch (error) {
+      console.log('Loading data, initializing defaults');
+      const defaultProducts = getDefaultProducts();
+      const defaultCategories = ['All', 'Doors', 'Windows', 'Mats', 'Furniture', 'Decor', 'Religious', 'Handicrafts'];
+      setProducts(defaultProducts);
+      setCategories(defaultCategories);
+    }
+  };
+
+  const getDefaultProducts = () => [
+    { id: 1, name: "Bamboo Door (6x3 ft)", category: "Doors", price: 3500, image: "🚪", description: "Handcrafted traditional bamboo door", inStock: true },
+    { id: 2, name: "Bamboo Window Frame", category: "Windows", price: 1200, image: "🪟", description: "Natural bamboo window frame", inStock: true },
+    { id: 3, name: "Prayer Mat", category: "Religious", price: 450, image: "🧘", description: "Woven bamboo prayer mat", inStock: true },
+    { id: 4, name: "Bamboo Chair", category: "Furniture", price: 2800, image: "🪑", description: "Comfortable bamboo seating", inStock: true },
+    { id: 5, name: "Wall Hanging", category: "Decor", price: 650, image: "🎨", description: "Decorative bamboo art piece", inStock: true },
+    { id: 6, name: "Bamboo Basket Set", category: "Handicrafts", price: 890, image: "🧺", description: "Set of 3 storage baskets", inStock: true },
+    { id: 7, name: "Floor Mat (6x4 ft)", category: "Mats", price: 1100, image: "🟫", description: "Durable bamboo floor mat", inStock: true },
+    { id: 8, name: "Bamboo Lamp", category: "Decor", price: 750, image: "💡", description: "Ambient bamboo table lamp", inStock: true },
+    { id: 9, name: "Pooja Thali", category: "Religious", price: 580, image: "🪔", description: "Traditional bamboo prayer plate", inStock: true },
+    { id: 10, name: "Bamboo Shelf Unit", category: "Furniture", price: 4200, image: "📚", description: "3-tier storage shelf", inStock: true },
+  ];
+
+  const saveCart = async (newCart) => {
+    setCart(newCart);
+    try {
+      await window.storage.set('bamboo-cart', JSON.stringify(newCart));
+    } catch (error) {
+      console.error('Error saving cart:', error);
+    }
+  };
+
+  const saveOrders = async (newOrders) => {
+    setOrders(newOrders);
+    try {
+      await window.storage.set('bamboo-orders', JSON.stringify(newOrders), true);
+    } catch (error) {
+      console.error('Error saving orders:', error);
+    }
+  };
+
+  const saveUserInfo = async (info) => {
+    setUserInfo(info);
+    try {
+      await window.storage.set('bamboo-user', JSON.stringify(info));
+    } catch (error) {
+      console.error('Error saving user info:', error);
+    }
+  };
+
+  const saveProducts = async (newProducts) => {
+    setProducts(newProducts);
+    try {
+      await window.storage.set('bamboo-products', JSON.stringify(newProducts));
+    } catch (error) {
+      console.error('Error saving products:', error);
+    }
+  };
+
+  const saveCategories = async (newCategories) => {
+    setCategories(newCategories);
+    try {
+      await window.storage.set('bamboo-categories', JSON.stringify(newCategories));
+    } catch (error) {
+      console.error('Error saving categories:', error);
+    }
+  };
+
+  const addToCart = (product) => {
+    const existing = cart.find(item => item.id === product.id);
+    if (existing) {
+      saveCart(cart.map(item => 
+        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      ));
+    } else {
+      saveCart([...cart, { ...product, quantity: 1 }]);
+    }
+  };
+
+  const updateQuantity = (productId, change) => {
+    const newCart = cart.map(item => {
+      if (item.id === productId) {
+        const newQuantity = item.quantity + change;
+        return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
+      }
+      return item;
+    }).filter(Boolean);
+    saveCart(newCart);
+  };
+
+  const removeFromCart = (productId) => {
+    saveCart(cart.filter(item => item.id !== productId));
+  };
+
+  const getCartTotal = () => {
+    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  };
+
+  const getCartCount = () => {
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  };
+
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         product.category.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch && product.inStock;
+  });
+
+  const placeOrder = () => {
+    const newOrder = {
+      id: Date.now(),
+      items: [...cart],
+      total: getCartTotal(),
+      user: { ...userInfo },
+      status: 'Ordered',
+      date: new Date().toLocaleDateString(),
+      time: new Date().toLocaleTimeString(),
+      paymentMethod: 'COD'
+    };
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    const newOrders = [newOrder, ...orders];
+    saveOrders(newOrders);
+    saveCart([]);
+    setCurrentScreen('orderConfirm');
+    setCheckoutStep('details');
+  };
+
+  const handleAdminLogin = () => {
+    if (adminPassword === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      setShowAdminLogin(false);
+      setAdminPassword('');
+      setCurrentScreen('admin');
+    } else {
+      alert('Incorrect password');
+      setAdminPassword('');
+    }
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdmin(false);
+    setCurrentScreen('home');
+  };
+
+  const addProduct = () => {
+    const newProduct = {
+      id: Date.now(),
+      name: 'New Product',
+      category: categories[1] || 'Uncategorized',
+      price: 0,
+      image: '📦',
+      description: 'Product description',
+      inStock: true
+    };
+    setEditingProduct(newProduct);
+  };
+
+  const saveProduct = async () => {
+    if (!editingProduct.name || !editingProduct.price) {
+      alert('Please fill product name and price');
+      return;
+    }
     
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    const existingIndex = products.findIndex(p => p.id === editingProduct.id);
+    let newProducts;
     
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    if (existingIndex >= 0) {
+      newProducts = [...products];
+      newProducts[existingIndex] = editingProduct;
+    } else {
+      newProducts = [...products, editingProduct];
+    }
     
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <style>
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-        #root { min-height: 100vh; }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
+    await saveProducts(newProducts);
+    setEditingProduct(null);
+  };
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { ShoppingCart, Search, Home, User, Package, Star, MapPin, Phone, Mail, 
-                ArrowLeft, Plus, Minus, Trash2, Check, Settings, Edit2, Save, X, LogIn, LogOut } = lucide;
+  const deleteProduct = async (productId) => {
+    if (confirm('Delete this product?')) {
+      const newProducts = products.filter(p => p.id !== productId);
+      await saveProducts(newProducts);
+    }
+  };
 
-        // Mock storage for static hosting (you can replace with actual backend later)
-        const mockStorage = {
-            data: {},
-            async get(key) {
-                const value = localStorage.getItem(key);
-                return value ? { key, value } : null;
-            },
-            async set(key, value) {
-                localStorage.setItem(key, value);
-                return { key, value };
-            },
-            async delete(key) {
-                localStorage.removeItem(key);
-                return { key, deleted: true };
-            }
-        };
+  const toggleProductStock = async (productId) => {
+    const newProducts = products.map(p => 
+      p.id === productId ? { ...p, inStock: !p.inStock } : p
+    );
+    await saveProducts(newProducts);
+  };
 
-        window.storage = mockStorage;
+  const updateOrderStatus = async (orderId, newStatus) => {
+    const newOrders = orders.map(order =>
+      order.id === orderId ? { ...order, status: newStatus } : order
+    );
+    await saveOrders(newOrders);
+  };
 
-        function App() {
-            const [currentScreen, setCurrentScreen] = useState('home');
-            const [cart, setCart] = useState([]);
-            const [selectedCategory, setSelectedCategory] = useState('All');
-            const [searchQuery, setSearchQuery] = useState('');
-            const [selectedProduct, setSelectedProduct] = useState(null);
-            const [orders, setOrders] = useState([]);
-            const [products, setProducts] = useState([]);
-            const [categories, setCategories] = useState(['All']);
-            const [userInfo, setUserInfo] = useState({ name: '', phone: '', address: '', pincode: '' });
-            const [checkoutStep, setCheckoutStep] = useState('details');
-            const [isAdmin, setIsAdmin] = useState(false);
-            const [adminPassword, setAdminPassword] = useState('');
-            const [editingProduct, setEditingProduct] = useState(null);
-            const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const Header = ({ title, showBack = false }) => (
+    <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 sticky top-0 z-10 shadow-md">
+      <div className="flex items-center justify-between max-w-4xl mx-auto">
+        <div className="flex items-center gap-3">
+          {showBack && (
+            <button onClick={() => {
+              if (currentScreen === 'product') setCurrentScreen('home');
+              else if (currentScreen === 'checkout') setCurrentScreen('cart');
+              else if (currentScreen === 'orderConfirm') setCurrentScreen('home');
+              else if (currentScreen === 'admin') handleAdminLogout();
+              else setCurrentScreen('home');
+            }} className="p-1 hover:bg-green-500 rounded">
+              <ArrowLeft size={24} />
+            </button>
+          )}
+          <h1 className="text-xl font-bold">🎋 {title}</h1>
+        </div>
+        {currentScreen === 'home' && (
+          <div className="flex items-center gap-3">
+            <button onClick={() => setShowAdminLogin(true)} className="p-2 hover:bg-green-500 rounded">
+              <Settings size={20} />
+            </button>
+            <div className="relative">
+              <ShoppingCart size={24} />
+              {getCartCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {getCartCount()}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+        {currentScreen === 'admin' && (
+          <button onClick={handleAdminLogout} className="p-2 hover:bg-green-500 rounded flex items-center gap-2">
+            <LogOut size={20} />
+            <span className="text-sm">Logout</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
-            const ADMIN_PASSWORD = 'bamboo2024'; // CHANGE THIS PASSWORD!
+  const BottomNav = () => (
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+      <div className="flex justify-around max-w-4xl mx-auto">
+        {[
+          { icon: Home, label: 'Home', screen: 'home' },
+          { icon: ShoppingCart, label: 'Cart', screen: 'cart', badge: getCartCount() },
+          { icon: Package, label: 'Orders', screen: 'orders' },
+          { icon: User, label: 'Profile', screen: 'profile' }
+        ].map(({ icon: Icon, label, screen, badge }) => (
+          <button
+            key={screen}
+            onClick={() => setCurrentScreen(screen)}
+            className={`flex-1 py-3 flex flex-col items-center gap-1 relative ${
+              currentScreen === screen ? 'text-green-600' : 'text-gray-500'
+            }`}
+          >
+            <Icon size={24} />
+            <span className="text-xs">{label}</span>
+            {badge > 0 && (
+              <span className="absolute top-1 right-1/4 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
-            useEffect(() => {
-                loadData();
-                lucide.createIcons();
-            }, [currentScreen, editingProduct]);
+  const HomeScreen = () => (
+    <div className="pb-20">
+      <Header title="BambooMart" />
+      
+      <div className="p-4 bg-gray-50">
+        <div className="relative max-w-4xl mx-auto">
+          <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Search bamboo products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+      </div>
 
-            const loadData = async () => {
-                try {
-                    const cartData = await window.storage.get('bamboo-cart');
-                    const ordersData = await window.storage.get('bamboo-orders');
-                    const userInfoData = await window.storage.get('bamboo-user');
-                    const productsData = await window.storage.get('bamboo-products');
-                    const categoriesData = await window.storage.get('bamboo-categories');
-                    
-                    if (cartData) setCart(JSON.parse(cartData.value));
-                    if (ordersData) setOrders(JSON.parse(ordersData.value));
-                    if (userInfoData) setUserInfo(JSON.parse(userInfoData.value));
-                    if (productsData) {
-                        setProducts(JSON.parse(productsData.value));
-                    } else {
-                        const defaultProducts = getDefaultProducts();
-                        setProducts(defaultProducts);
-                        await window.storage.set('bamboo-products', JSON.stringify(defaultProducts));
-                    }
-                    if (categoriesData) {
-                        setCategories(JSON.parse(categoriesData.value));
-                    } else {
-                        const defaultCategories = ['All', 'Doors', 'Windows', 'Mats', 'Furniture', 'Decor', 'Religious', 'Handicrafts'];
-                        setCategories(defaultCategories);
-                        await window.storage.set('bamboo-categories', JSON.stringify(defaultCategories));
-                    }
-                } catch (error) {
-                    console.log('Loading defaults');
-                    const defaultProducts = getDefaultProducts();
-                    const defaultCategories = ['All', 'Doors', 'Windows', 'Mats', 'Furniture', 'Decor', 'Religious', 'Handicrafts'];
-                    setProducts(defaultProducts);
-                    setCategories(defaultCategories);
-                }
-            };
+      <div className="px-4 py-3 overflow-x-auto bg-white border-b">
+        <div className="flex gap-2 max-w-4xl mx-auto">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-full whitespace-nowrap font-medium transition ${
+                selectedCategory === cat
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
 
-            const getDefaultProducts = () => [
-                { id: 1, name: "Bamboo Door (6x3 ft)", category: "Doors", price: 3500, image: "🚪", description: "Handcrafted traditional bamboo door", inStock: true },
-                { id: 2, name: "Bamboo Window Frame", category: "Windows", price: 1200, image: "🪟", description: "Natural bamboo window frame", inStock: true },
-                { id: 3, name: "Prayer Mat", category: "Religious", price: 450, image: "🧘", description: "Woven bamboo prayer mat", inStock: true },
-                { id: 4, name: "Bamboo Chair", category: "Furniture", price: 2800, image: "🪑", description: "Comfortable bamboo seating", inStock: true },
-                { id: 5, name: "Wall Hanging", category: "Decor", price: 650, image: "🎨", description: "Decorative bamboo art piece", inStock: true },
-                { id: 6, name: "Bamboo Basket Set", category: "Handicrafts", price: 890, image: "🧺", description: "Set of 3 storage baskets", inStock: true },
-                { id: 7, name: "Floor Mat (6x4 ft)", category: "Mats", price: 1100, image: "🟫", description: "Durable bamboo floor mat", inStock: true },
-                { id: 8, name: "Bamboo Lamp", category: "Decor", price: 750, image: "💡", description: "Ambient bamboo table lamp", inStock: true },
-                { id: 9, name: "Pooja Thali", category: "Religious", price: 580, image: "🪔", description: "Traditional bamboo prayer plate", inStock: true },
-                { id: 10, name: "Bamboo Shelf Unit", category: "Furniture", price: 4200, image: "📚", description: "3-tier storage shelf", inStock: true },
-            ];
+      <div className="bg-green-50 border-l-4 border-green-600 p-4 mx-4 mt-4 rounded">
+        <p className="text-green-800 font-medium">⚡ Fast Local Delivery • Handcrafted with Care</p>
+      </div>
 
-            // Copy all the functions from the React component above
-            // (saveCart, addToCart, placeOrder, etc.)
+      <div className="p-4 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 gap-4">
+          {filteredProducts.map(product => (
+            <div
+              key={product.id}
+              onClick={() => {
+                setSelectedProduct(product);
+                setCurrentScreen('product');
+              }}
+              className="bg-white rounded-lg shadow hover:shadow-lg transition cursor-pointer overflow-hidden"
+            >
+              <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center text-6xl">
+                {product.image}
+              </div>
+              <div className="p-3">
+                <h3 className="font-semibold text-sm mb-1 line-clamp-2">{product.name}</h3>
+                <p className="text-xs text-gray-500 mb-2">{product.category}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-green-600 font-bold">₹{product.price}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                    }}
+                    className="bg-green-600 text-white px-3 py-1 rounded text-sm font-medium hover:bg-green-700"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const ProductScreen = () => {
+    if (!selectedProduct) return null;
+    return (
+      <div className="pb-20">
+        <Header title="Product Details" showBack />
+        
+        <div className="max-w-4xl mx-auto">
+          <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+            <span className="text-9xl">{selectedProduct.image}</span>
+          </div>
+          
+          <div className="p-6 bg-white">
+            <div className="flex items-start justify-between mb-2">
+              <h2 className="text-2xl font-bold flex-1">{selectedProduct.name}</h2>
+              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                {selectedProduct.category}
+              </span>
+            </div>
             
-            const saveCart = async (newCart) => {
-                setCart(newCart);
-                await window.storage.set('bamboo-cart', JSON.stringify(newCart));
-            };
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex text-yellow-400">
+                {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+              </div>
+              <span className="text-sm text-gray-600">(4.8) • 127 reviews</span>
+            </div>
 
-            const addToCart = (product) => {
-                const existing = cart.find(item => item.id === product.id);
-                if (existing) {
-                    saveCart(cart.map(item => 
-                        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-                    ));
-                } else {
-                    saveCart([...cart, { ...product, quantity: 1 }]);
-                }
-            };
+            <p className="text-gray-600 mb-6 leading-relaxed">{selectedProduct.description}</p>
+            
+            <div className="bg-green-50 rounded-lg p-4 mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Check className="text-green-600" size={20} />
+                <span className="font-medium">100% Natural Bamboo</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="text-green-600" size={20} />
+                <span className="font-medium">Handcrafted by Local Artisans</span>
+              </div>
+            </div>
 
-            // Add remaining functions here...
-            // (For brevity, include all functions from the React component)
+            <div className="flex items-center justify-between py-4 border-t">
+              <div>
+                <p className="text-sm text-gray-500">Price</p>
+                <p className="text-3xl font-bold text-green-600">₹{selectedProduct.price}</p>
+              </div>
+              <button
+                onClick={() => {
+                  addToCart(selectedProduct);
+                  setCurrentScreen('cart');
+                }}
+                className="bg-green-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
+              >
+                <ShoppingCart size={20} />
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
-            return <div className="min-h-screen bg-gray-50">
-                <h1 className="text-center p-8 text-2xl font-bold">🎋 BambooMart Coming Soon</h1>
-                <p className="text-center">Full app code provided in deployment guide</p>
-            </div>;
-        }
+  const CartScreen = () => (
+    <div className="pb-20">
+      <Header title="Your Cart" showBack />
+      
+      {cart.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 px-4">
+          <ShoppingCart size={64} className="text-gray-300 mb-4" />
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">Your cart is empty</h3>
+          <p className="text-gray-500 mb-6">Add some beautiful bamboo products!</p>
+          <button
+            onClick={() => setCurrentScreen('home')}
+            className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700"
+          >
+            Start Shopping
+          </button>
+        </div>
+      ) : (
+        <div className="max-w-4xl mx-auto p-4">
+          <div className="bg-white rounded-lg shadow mb-4">
+            {cart.map(item => (
+              <div key={item.id} className="flex items-center gap-4 p-4 border-b last:border-b-0">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded flex items-center justify-center text-3xl flex-shrink-0">
+                  {item.image}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold truncate">{item.name}</h3>
+                  <p className="text-green-600 font-bold">₹{item.price}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => updateQuantity(item.id, -1)}
+                    className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                  <button
+                    onClick={() => updateQuantity(item.id, 1)}
+                    className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-200"
+                  >
+                    <Plus size={16} />
+                  </button>
+                  <button
+                    onClick={() => removeFromCart(item.id)}
+                    className="ml-2 w-8 h-8 bg-red-50 rounded-full flex items-center justify-center hover:bg-red-100 text-red-600"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
 
-        ReactDOM.render(<App />, document.getElementById('root'));
-    </script>
-</body>
-</html>
+          <div className="bg-white rounded-lg shadow p-4 mb-4">
+            <h3 className="font-semibold mb-3">Bill Details</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Item Total</span>
+                <span className="font-medium">₹{getCartTotal()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Delivery Fee</span>
+                <span className="font-medium text-green-600">FREE</span>
+              </div>
+              <div className="border-t pt-2 flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <span className="text-green-600">₹{getCartTotal()}</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setCurrentScreen('checkout')}
+            className="w-full bg-green-600 text-white py-4 rounded-lg font-semibold hover:bg-green-700 transition"
+          >
+            Proceed to Checkout
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  const CheckoutScreen = () => (
+    <div className="pb-20">
+      <Header title="Checkout" showBack />
+      
+      <div className="max-w-4xl mx-auto p-4">
+        {checkoutStep === 'details' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-xl font-semibold mb-4">Delivery Details</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <input
+                  type="text"
+                  value={userInfo.name}
+                  onChange={(e) => saveUserInfo({ ...userInfo, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Enter your name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input
+                  type="tel"
+                  value={userInfo.phone}
+                  onChange={(e) => saveUserInfo({ ...userInfo, phone: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="10-digit mobile number"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Delivery Address</label>
+                <textarea
+                  value={userInfo.address}
+                  onChange={(e) => saveUserInfo({ ...userInfo, address: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 h-24"
+                  placeholder="House/Flat, Area, Landmark"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
+                <input
+                  type="text"
+                  value={userInfo.pincode}
+                  onChange={(e) => saveUserInfo({ ...userInfo, pincode: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="6-digit pincode"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (userInfo.name && userInfo.phone && userInfo.address && userInfo.pincode) {
+                    setCheckoutStep('payment');
+                  } else {
+                    alert('Please fill all details');
+                  }
+                }}
+                className="w-full bg-green-600 text-white py-4 rounded-lg font-semibold hover:bg-green-700 transition"
+              >
+                Continue to Payment
+              </button>
+            </div>
+          </div>
+        )}
+
+        {checkoutStep === 'payment' && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-xl font-semibold mb-4">Payment Method</h3>
+              <div className="space-y-3">
+                <button className="w-full p-4 border-2 border-green-600 rounded-lg text-left hover:bg-green-50 transition">
+                  <div className="font-semibold">Cash on Delivery</div>
+                  <div className="text-sm text-gray-600">Pay when you receive</div>
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="font-semibold mb-3">Order Summary</h3>
+              <div className="space-y-2 text-sm mb-4">
+                {cart.map(item => (
+                  <div key={item.id} className="flex justify-between">
+                    <span className="text-gray-600">{item.name} × {item.quantity}</span>
+                    <span className="font-medium">₹{item.price * item.quantity}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-3 flex justify-between text-lg font-bold">
+                <span>Total Amount</span>
+                <span className="text-green-600">₹{getCartTotal()}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={placeOrder}
+              className="w-full bg-green-600 text-white py-4 rounded-lg font-semibold hover:bg-green-700 transition"
+            >
+              Place Order
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const OrderConfirmScreen = () => (
+    <div className="pb-20">
+      <Header title="Order Confirmed" />
+      
+      <div className="max-w-4xl mx-auto p-4 flex flex-col items-center justify-center py-12">
+        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
+          <Check className="text-green-600" size={48} />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">Order Placed Successfully!</h2>
+        <p className="text-gray-600 text-center mb-8">Your bamboo products will be delivered soon</p>
+        
+        <div className="bg-white rounded-lg shadow p-6 w-full mb-6">
+          <h3 className="font-semibold mb-3">Delivery Address</h3>
+          <div className="space-y-1 text-gray-600">
+            <p className="font-medium text-black">{userInfo.name}</p>
+            <p>{userInfo.phone}</p>
+            <p>{userInfo.address}</p>
+            <p>{userInfo.pincode}</p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setCurrentScreen('orders')}
+          className="w-full bg-green-600 text-white py-4 rounded-lg font-semibold hover:bg-green-700 transition mb-3"
+        >
+          Track Order
+        </button>
+        <button
+          onClick={() => setCurrentScreen('home')}
+          className="w-full bg-gray-100 text-gray-700 py-4 rounded-lg font-semibold hover:bg-gray-200 transition"
+        >
+          Continue Shopping
+        </button>
+      </div>
+    </div>
+  );
+
+  const OrdersScreen = () => (
+    <div className="pb-20">
+      <Header title="My Orders" />
+      
+      {orders.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 px-4">
+          <Package size={64} className="text-gray-300 mb-4" />
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">No orders yet</h3>
+          <p className="text-gray-500 mb-6">Start shopping for bamboo products!</p>
+          <button
+            onClick={() => setCurrentScreen('home')}
+            className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700"
+          >
+            Browse Products
+          </button>
+        </div>
+      ) : (
+        <div className="max-w-4xl mx-auto p-4 space-y-4">
+          {orders.map(order => (
+            <div key={order.id} className="bg-white rounded-lg shadow p-4">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <p className="font-semibold">Order #{order.id.toString().slice(-6)}</p>
+                  <p className="text-sm text-gray-500">{order.date} • {order.time}</p>
+                </div>
+                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                  {order.status}
+                </span>
+              </div>
+              <div className="space-y-2 mb-3">
+                {order.items.map(item => (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <span className="text-gray-600">{item.name} × {item.quantity}</span>
+                    <span className="font-medium">₹{item.price * item.quantity}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-3 flex justify-between font-semibold">
+                <span>Total</span>
+                <span className="text-green-600">₹{order.total}</span>
+              </div>
+              <div className="mt-3 text-sm text-gray-600">
+                <p className="font-medium">Delivery to:</p>
+                <p>{order.user.name} • {order.user.phone}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const ProfileScreen = () => (
+    <div className="pb-20">
+      <Header title="Profile" />
+      
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="bg-white rounded-lg shadow p-6 mb-4">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+              <User size={40} className="text-green-600" />
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold">{userInfo.name || 'Guest User'}</h3>
+              <p className="text-gray-600">{userInfo.phone || 'No phone added'}</p>
+            </div>
+          </div>
+          
+          {userInfo.address && (
+            <div className="mb-4">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <MapPin size={18} className="text-green-600" />
+                Saved Address
+              </h4>
+              <p className="text-gray-600">{userInfo.address}</p>
+              <p className="text-gray-600">Pincode: {userInfo.pincode}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white rounded-lg shadow divide-y">
+          <button className="w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition text-left">
+            <Phone size={20} className="text-green-600" />
+            <div className="flex-1">
+              <p className="font-medium">Contact Us</p>
+              <p className="text-sm text-gray-600">Get help with your order</p>
+            </div>
+          </button>
+          
+          <button className="w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition text-left">
+            <Mail size={20} className="text-green-600" />
+            <div className="flex-1">
+              <p className="font-medium">Email Support</p>
+              <p className="text-sm text-gray-600">bamboomart@example.com</p>
+            </div>
+          </button>
+          
+          <button className="w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition text-left">
+            <MapPin size={20} className="text-green-600" />
+            <div className="flex-1">
+              <p className="font-medium">Delivery Areas</p>
+              <p className="text-sm text-gray-600">We deliver across your city</p>
+            </div>
+          </button>
+        </div>
+
+        <div className="mt-6 bg-green-50 rounded-lg p-4">
+          <h4 className="font-semibold text-green-800 mb-2">🎋 About BambooMart</h4>
+          <p className="text-sm text-green-700">
+            Your trusted local source for authentic handcrafted bamboo products. 
+            Supporting local artisans and delivering quality craftsmanship to your doorstep.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const AdminScreen = () => (
+    <div className="pb-20">
+      <Header title="Admin Panel" showBack />
+      
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="bg-white rounded-lg shadow p-6 mb-4">
+          <h3 className="text-xl font-semibold mb-4">Quick Stats</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-green-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-600">Total Products</p>
+              <p className="text-2xl font-bold text-green-600">{products.length}</p>
+            </div>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-600">Total Orders</p>
+              <p className="text-2xl font-bold text-blue-600">{orders.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Manage Products</h3>
+            <button
+              onClick={addProduct}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 flex items-center gap-2"
+            >
+              <Plus size={20} />
+              Add Product
+            </button>
+          </div>
+          
+          <div className="space-y-3">
+            {products.map(product => (
+              <div key={product.id} className="flex items-center gap-3 p-3 border rounded-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-50 to-green-100 rounded flex items-center justify-center text-2xl flex-shrink-0">
+                  {product.image}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold truncate">{product.name}</h4>
+                  <p className="text-sm text-gray-600">₹{product.price} • {product.category}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => toggleProductStock(product.id)}
+                    className={`px-3 py-1 rounded text-sm font-medium ${
+                      product.inStock
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {product.inStock ? 'In Stock' : 'Out of Stock'}
+                  </button>
+                  <button
+                    onClick={() => setEditingProduct(product)}
+                    className="p-2 hover:bg-gray-100 rounded"
+                  >
+                    <Edit2 size={18} className="text-blue-600" />
+                  </button>
+                  <button
+                    onClick={() => deleteProduct(product.id)}
+                    className="p-2 hover:bg-gray-100 rounded"
+                  >
+                    <Trash2 size={18} className="text-red-600" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-xl font-semibold mb-4">Recent Orders</h3>
+          <div className="space-y-3">
+            {orders.slice(0, 10).map(order => (
+              <div key={order.id} className="p-3 border rounded-lg">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-semibold">Order #{order.id.toString().slice(-6)}</p>
+                    <p className="text-sm text-gray-600">{order.user.name} • {order.user.phone}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="font-bold text-green-600">₹{order.total}</span>
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                      className="text-sm border border-gray-300 rounded px-2 py-1"
+                    >
+                      <option>Ordered</option>
+                      <option>Packed</option>
+                      <option>Out for Delivery</option>
+                      <option>Delivered</option>
+                      <option>Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600">
+                  <p>{order.items.length} items • {order.date}</p>
+                  <p className="truncate">{order.user.address}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const AdminLoginModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold">Admin Login</h3>
+          <button onClick={() => {
+            setShowAdminLogin(false);
+            setAdminPassword('');
+          }} className="p-1 hover:bg-gray-100 rounded">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <input
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Enter admin password"
+              autoFocus
+            />
+          </div>
+          <button
+            onClick={handleAdminLogin}
+            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 flex items-center justify-center gap-2"
+          >
+            <LogIn size={20} />
+            Login
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ProductEditModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full my-8">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold">Edit Product</h3>
+          <button onClick={() => setEditingProduct(null)} className="p-1 hover:bg-gray-100 rounded">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+            <input
+              type="text"
+              value={editingProduct.name}
+              onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+            <select
+              value={editingProduct.category}
+              onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {categories.filter(c => c !== 'All').map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+            <input
+              type="number"
+              value={editingProduct.price}
+              onChange={(e) => setEditingProduct({ ...editingProduct, price: parseInt(e.target.value) || 0 })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Emoji Icon</label>
+            <input
+              type="text"
+              value={editingProduct.image}
+              onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="🎋"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea
+              value={editingProduct.description}
+              onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 h-20"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="inStock"
+              checked={editingProduct.inStock}
+              onChange={(e) => setEditingProduct({ ...editingProduct, inStock: e.target.checked })}
+              className="w-4 h-4"
+            />
+            <label htmlFor="inStock" className="text-sm font-medium text-gray-700">In Stock</label>
+          </div>
+          <button
+            onClick={saveProduct}
+            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 flex items-center justify-center gap-2"
+          >
+            <Save size={20} />
+            Save Product
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {currentScreen === 'home' && <HomeScreen />}
+      {currentScreen === 'product' && <ProductScreen />}
+      {currentScreen === 'cart' && <CartScreen />}
+      {currentScreen === 'checkout' && <CheckoutScreen />}
+      {currentScreen === 'orderConfirm' && <OrderConfirmScreen />}
+      {currentScreen === 'orders' && <OrdersScreen />}
+      {currentScreen === 'profile' && <ProfileScreen />}
+      {currentScreen === 'admin' && isAdmin && <AdminScreen />}
+      
+      {currentScreen !== 'admin' && <BottomNav />}
+      {showAdminLogin && <AdminLoginModal />}
+      {editingProduct && <ProductEditModal />}
+    </div>
+  );
+}
